@@ -24,7 +24,7 @@ def test_ingest_csv(tmp_path):
     
     # Verify state
     state_data = json.loads(state_file.read_text())
-    lead_id = "john-doe_acme-corp"
+    lead_id = "john-doe-acme-corp"
     assert lead_id in state_data["leads"]
     assert state_data["leads"][lead_id]["status"] == "ingested"
     
