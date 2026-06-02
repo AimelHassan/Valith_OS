@@ -1,3 +1,6 @@
+# Valith OS — Automated Lead Research & Cadence Drafting Pipeline
+# Auto-executes Phase 2 (Discovery Engine) and Phase 3 (Outreach Synthesizer)
+
 import os
 import re
 import json
@@ -22,20 +25,20 @@ def load_env():
         if not line or line.startswith("#") or "=" not in line:
             continue
         key, val = line.split("=", 1)
+        # Strip optional quotes
         val = val.strip().strip('"').strip("'")
         env_vars[key.strip()] = val
     return env_vars
 
 ENV = load_env()
 GEMINI_API_KEY = ENV.get("VITE_GEMINI_API_KEY") or ENV.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
-ORCHESTRATION_MODEL = ENV.get("ORCHESTRATION_MODEL") or "gemini-2.5-flash"
 
 def call_gemini(prompt: str, system_instruction: str = None) -> str:
     """Invokes Gemini API via clean HTTP POST requests."""
     if not GEMINI_API_KEY:
-        raise ValueError("Missing GEMINI_API_KEY. Set VITE_GEMINI_API_KEY in .env.")
+        raise ValueError("Missing GEMINI_API_KEY. Set VITE_GEMINI_API_KEY in .env or run env.")
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{ORCHESTRATION_MODEL}:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
     
     payload = {
         "contents": [
@@ -71,12 +74,13 @@ def call_gemini(prompt: str, system_instruction: str = None) -> str:
         raise RuntimeError(f"Gemini API Error {e.code}: {err_msg}")
 
 # ----------------------------------------------------
-# DRAFT CADENCE AUTOMATION
+# AUTOMATION FLOW
 # ----------------------------------------------------
 
-def run_drafting():
+def run_pipeline():
     state_path = Path("state/pipeline.json")
     leads_dir = Path("leads")
+    leads_dir.mkdir(exist_ok=True)
 
     if not state_path.exists():
         print(f"Error: State file {state_path} not found.")
@@ -91,49 +95,91 @@ def run_drafting():
         return
 
     print("====================================================")
-    print("RUNNING PHASE 3: OUTREACH SYNTHESIZER")
+    print("STARTING VALITH AUTOMATED OUTREACH RESEARCH & CADENCE")
     print("====================================================")
 
     modified = False
 
     for lead_id, lead in list(leads_dict.items()):
-        status = lead.get("status")
-        if status != "researched":
-            continue
-
-        print(f"\n[DRAFTING] Lead: {lead_id} ({lead.get('company')})")
+        status = lead.get("status", "ingested")
         
+        # Ensure lead markdown exists
         md_file = leads_dir / f"{lead_id}.md"
         if not md_file.exists():
-            print(f"Warning: Markdown card for {lead_id} does not exist. Skipping.")
-            continue
+            # Scaffold default frontmatter
+            initial_content = f"""---
+id: {lead_id}
+first_name: {lead.get('first_name', '')}
+last_name: {lead.get('last_name', '')}
+company: {lead.get('company', '')}
+linkedin: {lead.get('linkedin', '')}
+website: {lead.get('website', '')}
+status: ingested
+---
+# Outreach Card: {lead.get('first_name')} at {lead.get('company')}
+"""
+            md_file.write_text(initial_content)
 
-        md_content = md_file.read_text(encoding="utf-8")
+        # ----------------------------------------------------
+        # PHASE 2: DEEP RESEARCH LOOP (ingested -> researched)
+        # ----------------------------------------------------
+        if status == "ingested":
+            print(f"\n[RESEARCHING] Lead: {lead_id} ({lead.get('company')})")
+            
+            # Formulate prompt for Gemini Two-Stage Protocol
+            system_prompt = """You are a high-performance AI systems architect. You represent Valith AI Solutions (pure Python, autonomous agentic infrastructure, cognitive automation).
+Evaluate the lead's company and suggest high-latency bottlenecks we can automate (e.g. document ingestion, manual validation, vendor mapping, invoice parsing).
+Return a markdown block formatted like this:
+## Research Context
+- **Industry Dynamics**: (1-2 sentences on industry overhead)
+- **High-Latency Node**: (Identify specific operational bottleneck, e.g. manual RFP analysis, logistics routing)
+- **Dynamic Value Proposition**: We can automate [Bottleneck X] using an autonomous [Agent Type Y] to save you [Z] hours per week."""
 
-        system_prompt = """You are a founder-to-founder outreach copywriter for Valith.
+            prompt = f"Lead Company: {lead.get('company')}\nWebsite: {lead.get('website', 'None')}\nContact: {lead.get('first_name')} {lead.get('last_name')}"
+            
+            try:
+                research_content = call_gemini(prompt, system_prompt)
+                
+                # Update Markdown file
+                content = md_file.read_text()
+                content = content.replace("status: ingested", "status: researched")
+                
+                if "## Research Context" in content:
+                    # Replace existing
+                    content = re.sub(r"## Research Context.*?(?=##|$)", f"{research_content}\n\n", content, flags=re.DOTALL)
+                else:
+                    content += f"\n\n{research_content}"
+                
+                md_file.write_text(content)
+                
+                # Update JSON State
+                lead["status"] = "researched"
+                modified = True
+                print(f"✓ Research complete. State saved as researched.")
+            except Exception as err:
+                print(f"✗ Research failed for {lead_id}: {err}")
+
+        # ----------------------------------------------------
+        # PHASE 3: OUTREACH SYNTHESIZER (researched -> connection_pending)
+        # ----------------------------------------------------
+        # The state is updated toconnection_pending so the founder knows a DM is drafted and ready
+        status = lead.get("status") # Refresh status check
+        if status == "researched":
+            print(f"\n[DRAFTING OUTREACH] Lead: {lead_id} ({lead.get('company')})")
+            
+            content = md_file.read_text()
+            
+            system_prompt = """You are a founder-to-founder outreach copywriter for Valith.
 Read the ## Research Context in the prompt.
 Write a personalized 3-step outreach cadence:
-
 Step 1: Connection DM (approx 80-120 words). Hyper-specific hook referencing their friction, direct introduction as Valith founder in Islamabad, pitch matching traction (Waitlist 155+, inquiry routing systems), soft call-to-action.
 Step 2: Day 3 Follow-up (1 sentence).
 Step 3: Day 10 Breakup (1 sentence).
 
-Drafting instructions:
-1. Refer specifically to the company and the High-Latency Node identified in the Research Context.
-2. Structure Step 1 with:
-   - Hyper-Specific Hook: Reference a localized detail or recent event (e.g., "Salam [Name], saw you just got back from [Event]..." or "Salam [Name], saw what you're doing with [Company]...")
-   - Inferred Priority: "Five years serving [Industry] tells me [Goal] is an active priority."
-   - Direct Introduction: "I'm the founder of Valith, an AI startup in Islamabad. We build custom AI systems and consult businesses on where AI can genuinely fit across their operations."
-   - Traction & The Pitch: Map the high-latency node friction to Valith's traction. "For [Company], the most obvious starting point is automating [Bottleneck]. We have a live outreach platform at 155+ waitlist signups and a deployed inquiry handling system at a logistics enterprise."
-   - The Pivot: Acknowledge scale/multiple ventures. "Beyond that, given the scale of what you're running across [Venture 1] and [Venture 2] (or across your projects), there's likely a broader conversation about where AI can remove the operational overhead..."
-   - Soft CTA: "Worth a call to see where the highest leverage is."
-3. Step 2 (Day 3 Follow-up): 1-sentence reminder or value-add.
-4. Step 3 (Day 10 Breakup): 1-sentence clean breakup.
-5. Rules:
-   - NEVER use the words "Machine Learning", "Synergy", "Transform", or "Unlock".
-   - Use occasional lowercase for a human, casual feel.
-
-Format your response exactly like this:
+Rules:
+1. NEVER use corporate buzzwords: "Machine Learning", "Synergy", "Transform", "Unlock".
+2. Use occasional lowercase for natural human readability.
+Return a markdown block formatted like this:
 ## Outreach Cadence
 - **Step 1 (Connection DM)**:
 [Draft Message]
@@ -142,34 +188,33 @@ Format your response exactly like this:
 - **Step 3 (Day 10 Breakup)**:
 [Breakup Message]"""
 
-        try:
-            cadence_content = call_gemini(md_content, system_prompt)
-            
-            # Update Markdown File
-            content = md_file.read_text(encoding="utf-8")
-            content = content.replace("status: researched", "status: connection_pending")
-            
-            if "## Outreach Cadence" in content:
-                content = re.sub(r"## Outreach Cadence.*", cadence_content.strip(), content, flags=re.DOTALL)
-            else:
-                content += f"\n\n{cadence_content.strip()}"
-            
-            md_file.write_text(content, encoding="utf-8")
-            
-            # Update JSON State
-            lead["status"] = "connection_pending"
-            modified = True
-            print(f"✓ Outreach cadence generated and saved.")
-            
-        except Exception as err:
-            print(f"✗ Drafting failed for {lead_id}: {err}")
+            try:
+                cadence_content = call_gemini(content, system_prompt)
+                
+                # Update Markdown File
+                content = md_file.read_text()
+                content = content.replace("status: researched", "status: connection_pending")
+                
+                if "## Outreach Cadence" in content:
+                    content = re.sub(r"## Outreach Cadence.*", cadence_content, content, flags=re.DOTALL)
+                else:
+                    content += f"\n\n{cadence_content}"
+                
+                md_file.write_text(content)
+                
+                # Update JSON State
+                lead["status"] = "connection_pending"
+                modified = True
+                print(f"✓ Outreach cadence generated. State saved as connection_pending.")
+            except Exception as err:
+                print(f"✗ Drafting failed for {lead_id}: {err}")
 
     if modified:
         with open(state_path, "w") as f:
             json.dump(state, f, indent=2)
-        print("\n✓ Pipeline state synchronized.")
+        print("\n✓ Pipeline database state file synchronized.")
     else:
-        print("\nNo leads in 'researched' status found to process.")
+        print("\nAll leads are up to date. No pending states.")
         
     export_aggregated_state()
 
@@ -224,6 +269,7 @@ def export_aggregated_state():
 
 if __name__ == "__main__":
     if not GEMINI_API_KEY:
-        print("Error: VITE_GEMINI_API_KEY is not defined in your environment/env file.")
+        print("Error: VITE_GEMINI_API_KEY is not defined in your environmental files. Please set it to proceed.")
     else:
-        run_drafting()
+        run_pipeline()
+

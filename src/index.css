@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-typography font-sans antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans tracking-tight font-semibold text-typography;
+  }
+
+  /* Custom input styles for consistency */
+  input, select, textarea {
+    @apply bg-background-card border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-aurum focus:border-aurum transition-all duration-200;
+  }
+
+  button {
+    @apply transition-all duration-200;
+  }
+}
+
+@layer utilities {
+  .gold-gradient {
+    background: linear-gradient(135deg, #E6C575 0%, #C5A059 50%, #9A7B3E 100%);
+  }
+  
+  .gold-text-gradient {
+    background: linear-gradient(135deg, #E6C575 0%, #C5A059 50%, #9A7B3E 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* Premium micro-animations & card adjustments */
+.card-premium {
+  @apply bg-background-card border border-border rounded-lg p-5 shadow-premium hover:shadow-premium-hover hover:border-aurum/40 transition-all duration-300;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-background-soft;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-border rounded;
+  &:hover {
+    @apply bg-aurum/40;
+  }
+}
