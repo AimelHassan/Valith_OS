@@ -100,7 +100,31 @@ export const dbService = {
   },
   async saveLead(lead: Omit<Lead, 'created_at' | 'updated_at' | 'id'> & { id?: string }): Promise<Lead> {
     const valueAllowedStages = ['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'];
-    const isValAllowed = valueAllowedStages.includes(lead.stage);
+    
+    // Automatic stage/meeting sync logic
+    let stage = lead.stage;
+    let next_meeting_at = lead.next_meeting_at;
+    let meeting_type = lead.meeting_type;
+    let meeting_status = lead.meeting_status;
+
+    // 1. If lead is moved to "Meeting Scheduled" but has no next_meeting_at, set a default (e.g. today at 5:00 PM)
+    if (stage === 'Meeting Scheduled' && !next_meeting_at) {
+      const now = new Date();
+      now.setHours(17, 0, 0, 0);
+      next_meeting_at = now.toISOString();
+      if (!meeting_type) meeting_type = 'Discovery Call';
+      if (!meeting_status) meeting_status = 'Pending';
+    }
+
+    // 2. If next_meeting_at is set, and the lead is in a stage prior to "Meeting Scheduled", update stage to "Meeting Scheduled"
+    const priorStages = ['New', 'Connected', 'Messaged', 'Replied', 'Demo Sent'];
+    if (next_meeting_at && priorStages.includes(stage)) {
+      stage = 'Meeting Scheduled';
+      if (!meeting_type) meeting_type = 'Discovery Call';
+      if (!meeting_status) meeting_status = 'Scheduled';
+    }
+
+    const isValAllowed = valueAllowedStages.includes(stage);
     const finalValue = isValAllowed ? Number(lead.deal_value_estimate || 0) : 0;
     const finalRetainer = isValAllowed ? Number(lead.monthly_retainer_estimate || 0) : 0;
 
@@ -112,7 +136,7 @@ export const dbService = {
       source_channel: lead.source_channel,
       segment: lead.segment,
       offer_angle: lead.offer_angle,
-      stage: lead.stage,
+      stage: stage,
       status: lead.status,
       priority: lead.priority,
       probability_percent: Number(lead.probability_percent || 0),
@@ -125,9 +149,9 @@ export const dbService = {
       buying_signals: lead.buying_signals,
       objections: lead.objections,
       notes: lead.notes,
-      next_meeting_at: lead.next_meeting_at,
-      meeting_type: lead.meeting_type,
-      meeting_status: lead.meeting_status,
+      next_meeting_at: next_meeting_at,
+      meeting_type: meeting_type,
+      meeting_status: meeting_status,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };

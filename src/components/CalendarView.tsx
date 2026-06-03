@@ -262,8 +262,8 @@ export const CalendarView: React.FC = () => {
 
       {/* VIEW MODES */}
       {viewMode === 'week' ? (
-        /* WEEKLY GRID MODE */
-        <div className="grid grid-cols-1 md:grid-cols-7 gap-4 min-h-[500px]">
+        /* WEEKLY GRID MODE - HORIZONTAL ROWS */
+        <div className="space-y-4 min-h-[500px]">
           {weekDays.map((day, idx) => {
             const dayMeetings = meetingLeads.filter((l) => isSameDay(day, l.next_meeting_at!));
             const isToday = isSameDay(new Date(), day.toISOString());
@@ -271,27 +271,27 @@ export const CalendarView: React.FC = () => {
             return (
               <div
                 key={idx}
-                className={`bg-background-card border rounded-lg p-3 flex flex-col space-y-3.5 min-h-[250px] transition-all ${
+                className={`bg-background-card border rounded-lg p-4 flex flex-col md:flex-row md:items-center gap-4 transition-all ${
                   isToday 
                     ? 'border-aurum shadow-premium ring-1 ring-aurum/10 bg-aurum-glow/5' 
                     : 'border-border/60'
                 }`}
               >
-                {/* Day Header */}
-                <div className="border-b border-border/50 pb-2 text-center">
-                  <span className="block text-[9px] uppercase font-bold tracking-wider text-typography-light">
-                    {day.toLocaleDateString(undefined, { weekday: 'short' })}
+                {/* Day Header - Left Column */}
+                <div className="md:w-32 shrink-0 flex md:flex-col items-center md:items-start justify-between md:justify-center border-b md:border-b-0 md:border-r border-border/50 pb-2 md:pb-0 md:pr-4">
+                  <span className="block text-[10px] uppercase font-bold tracking-wider text-typography-light">
+                    {day.toLocaleDateString(undefined, { weekday: 'long' })}
                   </span>
-                  <span className={`text-base font-bold tracking-tight block ${isToday ? 'text-aurum-dark' : 'text-typography'}`}>
-                    {day.getDate()}
+                  <span className={`text-sm font-bold tracking-tight block mt-0.5 ${isToday ? 'text-aurum-dark' : 'text-typography'}`}>
+                    {day.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                   </span>
                 </div>
 
-                {/* Day Items */}
-                <div className="flex-1 space-y-3">
+                {/* Day Items - Horizontal Row */}
+                <div className="flex-1 flex flex-col md:flex-row md:items-stretch gap-4 overflow-x-auto py-1">
                   {dayMeetings.length === 0 ? (
-                    <div className="h-full flex items-center justify-center py-8 text-center text-[10px] text-typography-light/60 uppercase tracking-widest font-semibold italic">
-                      —
+                    <div className="flex items-center text-[10px] text-typography-light/60 uppercase tracking-widest font-semibold italic py-2">
+                      No scheduled checkpoints
                     </div>
                   ) : (
                     dayMeetings.map((lead) => {
@@ -304,16 +304,16 @@ export const CalendarView: React.FC = () => {
                         <div
                           key={lead.id}
                           onClick={() => setSelectedLead(lead)}
-                          className="bg-background border border-border/80 hover:border-aurum rounded p-2.5 shadow-sm text-xs cursor-pointer hover:shadow-premium transition-all duration-200 border-l-2 border-l-aurum flex flex-col justify-between min-h-[110px]"
+                          className="bg-background border border-border/80 hover:border-aurum rounded p-3 shadow-sm text-xs cursor-pointer hover:shadow-premium transition-all duration-200 border-l-2 border-l-aurum flex flex-col justify-between min-w-[240px] max-w-[280px] min-h-[110px] shrink-0"
                         >
-                          <div className="space-y-1">
+                          <div className="space-y-1.5">
                             <div className="flex items-center justify-between text-[8px] text-typography-light font-bold">
                               <span className="flex items-center space-x-1 uppercase">
                                 <Clock size={8} />
                                 <span>{timeStr}</span>
                               </span>
                               <span className="uppercase tracking-wider px-1 bg-background-soft border border-border rounded">
-                                {lead.source_channel}
+                                {lead.source_channel || 'LinkedIn'}
                               </span>
                             </div>
                             <span className="block font-bold text-typography leading-tight truncate mt-1">
@@ -324,7 +324,7 @@ export const CalendarView: React.FC = () => {
                             </span>
                           </div>
 
-                          <div className="flex items-center gap-1.5 flex-wrap mt-2">
+                          <div className="flex items-center gap-1.5 flex-wrap mt-3">
                             <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 bg-aurum-glow text-aurum-dark rounded border border-aurum/20">
                               {getSaaSCardTag(lead.stage)}
                             </span>
