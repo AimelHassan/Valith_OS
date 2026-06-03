@@ -60,6 +60,9 @@ export const LeadsView: React.FC = () => {
   const [editBuyingSignals, setEditBuyingSignals] = useState('');
   const [editObjections, setEditObjections] = useState('');
   const [editNotes, setEditNotes] = useState('');
+  const [editNextMeetingAt, setEditNextMeetingAt] = useState('');
+  const [editMeetingType, setEditMeetingType] = useState('Discovery Call');
+  const [editMeetingStatus, setEditMeetingStatus] = useState('Scheduled');
 
   // CSV Import/Export States
   const [showCSVImport, setShowCSVImport] = useState(false);
@@ -101,6 +104,21 @@ export const LeadsView: React.FC = () => {
     setEditBuyingSignals(selectedLead.buying_signals || '');
     setEditObjections(selectedLead.objections || '');
     setEditNotes(selectedLead.notes || '');
+
+    let meetingAtStr = '';
+    if (selectedLead.next_meeting_at) {
+      try {
+        const d = new Date(selectedLead.next_meeting_at);
+        const pad = (num: number) => String(num).padStart(2, '0');
+        meetingAtStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      } catch {
+        meetingAtStr = '';
+      }
+    }
+    setEditNextMeetingAt(meetingAtStr);
+    setEditMeetingType(selectedLead.meeting_type || 'Discovery Call');
+    setEditMeetingStatus(selectedLead.meeting_status || 'Scheduled');
+
     setIsEditing(true);
   };
 
@@ -120,11 +138,14 @@ export const LeadsView: React.FC = () => {
       segment: editSegment,
       offer_angle: editOfferAngle,
       next_action: editNextAction,
-      next_follow_up_date: editNextFollowUp || undefined,
+      next_follow_up_date: editNextFollowUp || null,
       pain_points: editPainPoints,
       buying_signals: editBuyingSignals,
       objections: editObjections,
-      notes: editNotes
+      notes: editNotes,
+      next_meeting_at: editNextMeetingAt || null,
+      meeting_type: editNextMeetingAt ? editMeetingType : null,
+      meeting_status: editNextMeetingAt ? editMeetingStatus : null
     });
 
     setIsEditing(false);
@@ -708,6 +729,52 @@ export const LeadsView: React.FC = () => {
                     className="w-full text-xs"
                   />
                 </div>
+              </div>
+
+              <div className="border-t border-border pt-4">
+                <h4 className="text-[10px] font-bold uppercase tracking-wider text-typography mb-3">Schedule Next Interaction</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase text-typography-muted mb-1">Interaction Date & Time</label>
+                    <input
+                      type="datetime-local"
+                      value={editNextMeetingAt}
+                      onChange={(e) => setEditNextMeetingAt(e.target.value)}
+                      className="w-full text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase text-typography-muted mb-1">Meeting Type</label>
+                    <select
+                      value={editMeetingType}
+                      onChange={(e) => setEditMeetingType(e.target.value)}
+                      className="w-full text-xs"
+                      disabled={!editNextMeetingAt}
+                    >
+                      <option value="Discovery Call">Discovery Call</option>
+                      <option value="Demo Scheduled">Demo Scheduled</option>
+                      <option value="Proposal Review">Proposal Review</option>
+                      <option value="Kickoff Call">Kickoff Call</option>
+                      <option value="Payment Follow-up">Payment Follow-up</option>
+                      <option value="Outreach Touchpoint">Outreach Touchpoint</option>
+                    </select>
+                  </div>
+                </div>
+                {editNextMeetingAt && (
+                  <div className="mt-3">
+                    <label className="block text-[10px] font-bold uppercase text-typography-muted mb-1">Interaction Status</label>
+                    <select
+                      value={editMeetingStatus}
+                      onChange={(e) => setEditMeetingStatus(e.target.value)}
+                      className="w-full text-xs"
+                    >
+                      <option value="Scheduled">Scheduled</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </div>
+                )}
               </div>
 
               <div>

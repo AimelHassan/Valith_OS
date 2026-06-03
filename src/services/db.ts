@@ -125,6 +125,9 @@ export const dbService = {
       buying_signals: lead.buying_signals,
       objections: lead.objections,
       notes: lead.notes,
+      next_meeting_at: lead.next_meeting_at,
+      meeting_type: lead.meeting_type,
+      meeting_status: lead.meeting_status,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };

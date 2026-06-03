@@ -23,7 +23,8 @@ import {
   Menu,
   X,
   Tag,
-  Layers
+  Layers,
+  Calendar
 } from 'lucide-react';
 
 
@@ -183,6 +184,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: 'Dashboard', icon: LayoutDashboard },
     { name: 'Pipeline', icon: Kanban },
     { name: 'Leads', icon: Users },
+    { name: 'Calendar', icon: Calendar, label: 'Interaction Calendar' },
     { name: 'Deals', icon: Briefcase },
     { name: 'Offers', icon: Tag },
     { name: 'Segments', icon: Layers },

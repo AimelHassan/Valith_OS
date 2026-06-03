@@ -78,6 +78,9 @@ CREATE TABLE leads (
     buying_signals TEXT,
     objections TEXT,
     notes TEXT,
+    next_meeting_at TIMESTAMPTZ,
+    meeting_type TEXT,
+    meeting_status TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

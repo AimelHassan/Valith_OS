@@ -17,6 +17,7 @@ import { AIAdvisorView } from './components/AIAdvisorView';
 import { OffersView } from './components/OffersView';
 import { SegmentsView } from './components/SegmentsView';
 import { SettingsView } from './components/SettingsView';
+import { CalendarView } from './components/CalendarView';
 
 const AppContent: React.FC = () => {
   const { user, activeTab, isLoading, errorMsg } = useValithOS();
@@ -47,6 +48,8 @@ const AppContent: React.FC = () => {
         return <PipelineView />;
       case 'Leads':
         return <LeadsView />;
+      case 'Calendar':
+        return <CalendarView />;
       case 'Deals':
         return <DealsView />;
       case 'Offers':

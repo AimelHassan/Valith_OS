@@ -48,12 +48,15 @@ export interface Lead {
   deal_value_estimate: number;
   monthly_retainer_estimate: number;
   next_action?: string;
-  next_follow_up_date?: string;
+  next_follow_up_date?: string | null;
   last_interaction_date?: string;
   pain_points?: string;
   buying_signals?: string;
   objections?: string;
   notes?: string;
+  next_meeting_at?: string | null;
+  meeting_type?: string | null;
+  meeting_status?: string | null;
   created_at: string;
   updated_at: string;
 }
