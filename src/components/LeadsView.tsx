@@ -392,6 +392,11 @@ export const LeadsView: React.FC = () => {
                         <span className="text-[10px] uppercase font-semibold text-typography-muted">
                           {lead.stage}
                         </span>
+                        {lead.next_meeting_at && (
+                          <span className="block text-[9px] text-aurum font-bold mt-0.5" title="Scheduled Meeting">
+                            {new Date(lead.next_meeting_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} at {new Date(lead.next_meeting_at).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true })}
+                          </span>
+                        )}
                       </td>
                       <td className="py-3.5 px-4 text-right font-bold text-typography">
                         {['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(lead.stage)
@@ -542,6 +547,18 @@ export const LeadsView: React.FC = () => {
                 <p className="text-typography-light italic">No primary contact attached.</p>
               )}
             </div>
+
+            {/* Scheduled Interaction */}
+            {selectedLead.next_meeting_at && (
+              <div className="space-y-2 border-t border-border pt-4 text-xs">
+                <h3 className="text-[10px] font-bold uppercase tracking-wider text-typography">Scheduled Interaction</h3>
+                <div className="p-3 bg-background-soft rounded space-y-1">
+                  <p><span className="font-semibold text-typography-light">Time:</span> {new Date(selectedLead.next_meeting_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} at {new Date(selectedLead.next_meeting_at).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true })}</p>
+                  <p><span className="font-semibold text-typography-light">Type:</span> {selectedLead.meeting_type || 'Discovery Call'}</p>
+                  <p><span className="font-semibold text-typography-light">Status:</span> {selectedLead.meeting_status || 'Scheduled'}</p>
+                </div>
+              </div>
+            )}
 
             {/* Pain points, buying signals, objections */}
             <div className="space-y-3.5 border-t border-border pt-4 text-xs">
