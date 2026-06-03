@@ -17,6 +17,8 @@ import {
 
 export const AICaptureInboxView: React.FC = () => {
   const {
+    organizations,
+    contacts,
     saveLead,
     saveTask,
     refreshAll,
@@ -63,7 +65,12 @@ export const AICaptureInboxView: React.FC = () => {
     setIsApplied(false);
     
     try {
-      const parsed = await aiService.parseCaptureInbox(rawText);
+      const parsed = await aiService.parseCaptureInbox(rawText, 'Gemini', {
+        organizations,
+        contacts,
+        offers,
+        segments: dbSegments
+      });
       setParsedData(parsed);
 
       // Hydrate state for review
@@ -80,8 +87,8 @@ export const AICaptureInboxView: React.FC = () => {
       setLeadName(parsed.lead?.lead_name || 'New Lead from AI Capture');
       setLeadAngle(parsed.lead?.offer_angle || 'RFP Intelligence');
       setLeadSegment(parsed.lead?.segment || 'A2 RFP Active');
-      setLeadVal(parsed.lead?.deal_value_estimate || 150000);
-      setLeadRet(parsed.lead?.monthly_retainer_estimate || 0);
+      setLeadVal(parsed.lead?.deal_value_estimate ?? 0);
+      setLeadRet(parsed.lead?.monthly_retainer_estimate ?? 0);
       setLeadAction(parsed.lead?.next_action || 'Send follow-up details');
       setLeadPains(parsed.lead?.pain_points || '');
       

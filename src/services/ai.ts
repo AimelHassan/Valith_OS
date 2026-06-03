@@ -36,6 +36,13 @@ export interface ParsedCaptureResult {
   };
 }
 
+export interface ExistingContext {
+  organizations: { id: string; name: string; segment?: string; industry?: string; location?: string }[];
+  contacts: { id: string; full_name: string; role_title?: string; organization_id?: string; email?: string }[];
+  offers: { id: string; name: string }[];
+  segments: { id: string; name: string }[];
+}
+
 // Helper to get active API Key from Settings or Environment
 export function getApiKey(provider: AIProvider = 'Gemini'): string {
   if (provider === 'Gemini') {
@@ -91,12 +98,39 @@ async function callGemini(prompt: string, apiKey: string, systemInstruction?: st
 // ----------------------------------------------------
 export const aiService = {
   // Parse raw text into structured JSON entities
-  async parseCaptureInbox(rawText: string, provider: AIProvider = 'Gemini'): Promise<ParsedCaptureResult> {
+  async parseCaptureInbox(
+    rawText: string,
+    provider: AIProvider = 'Gemini',
+    context?: ExistingContext
+  ): Promise<ParsedCaptureResult> {
     const apiKey = getApiKey(provider);
 
     if (provider === 'Mock' || !apiKey) {
       console.log('Using Mock/Fallback parser (missing API Key or Provider is Mock)');
       return mockParse(rawText);
+    }
+
+    let contextText = '';
+    if (context) {
+      contextText = `
+### CRM DATA CONTEXT FOR ENTITY RESOLUTION AND MATCHING:
+Use the following existing database data to match contacts, companies, segments, and offers. Do NOT invent new entities if there is a match in this data.
+
+1. Valid Segments (Choose exactly from these):
+${context.segments.map(s => `- ${s.name}`).join('\n')}
+
+2. Valid Offers (Choose exactly from these):
+${context.offers.map(o => `- ${o.name}`).join('\n')}
+
+3. Existing Organizations:
+${context.organizations.map(org => `- ${org.name} (Segment: ${org.segment || 'None'}, Industry: ${org.industry || 'None'}, Location: ${org.location || 'None'})`).join('\n')}
+
+4. Existing Contacts:
+${context.contacts.map(c => {
+  const org = context.organizations.find(o => o.id === c.organization_id);
+  return `- ${c.full_name} (Company: ${org ? org.name : 'Unknown'}, Role: ${c.role_title || 'None'}, Email: ${c.email || 'None'}, Segment: ${org ? org.segment : 'None'})`;
+}).join('\n')}
+`;
     }
 
     const systemPrompt = `You are a high-performance CRM parser for Valith AI Solutions.
@@ -122,8 +156,8 @@ Return ONLY valid JSON matching this schema:
     "segment": "A1 Whale", "A2 RFP Active", "A3 Smaller RFP Active", "A4 Workflow Fit", "Foreign Partner", "WhatsApp Lead", "Strategic", or "Other",
     "offer_angle": "RFP Intelligence", "WhatsApp Workflow Assistant", "AI Workflow Audit", "Inbox Automation", "Partner/Implementation", or "Other",
     "stage": "New", "Connected", "Messaged", "Replied", "Demo Sent", "Meeting Scheduled", "SOW Sent", "Negotiation", "Closed Won", "Closed Lost", "Cold", or "Archived",
-    "deal_value_estimate": 150000, // Number representing local currency PKR or USD value
-    "monthly_retainer_estimate": 45000,
+    "deal_value_estimate": 0, // Number representing local currency PKR or USD value. Default to 0. ONLY set to a non-zero value if explicitly stated in raw text. Do NOT guess or use default template numbers.
+    "monthly_retainer_estimate": 0, // Default to 0. ONLY set to a non-zero value if explicitly stated in raw text.
     "next_action": "Single immediate next step",
     "pain_points": "Client frustrations or manual bottlenecks",
     "notes": "Any other context"
@@ -133,7 +167,15 @@ Return ONLY valid JSON matching this schema:
     "due_date": "YYYY-MM-DD",
     "priority": "High", "Medium", or "Low"
   }
-}`;
+}
+
+${contextText}
+
+CRITICAL PARSING RULES:
+1. Entity Resolution: Compare the input text with the "Existing Contacts" and "Existing Organizations" list above. If the text mentions a person (e.g. "hassan zuberi") or organization that matches or closely matches an existing record, resolve it to their EXACT full name, company name, segment, and metadata. Do NOT create a duplicate or guess default categories.
+2. Category Selection: The "segment" MUST be chosen from the provided valid segments list if possible. The "offer_angle" MUST be chosen from the provided valid offers list. If you resolve to an existing contact/organization, default to their existing segment and offers unless the text specifies a new project/angle.
+3. Deal Value Estimates: Unless a specific price, fee, or estimate is explicitly written in the input text, set "deal_value_estimate" and "monthly_retainer_estimate" to 0. Do NOT use fake placeholder numbers (e.g., do not default to 150000 or 45000).
+4. Next Action: If the text indicates an action has occurred (e.g., "follow up sent"), formulate a logical next action like "Wait for response" or "Follow up in 3 days".`;
 
     const prompt = `Parse the following text:
 ---
@@ -241,8 +283,8 @@ function mockParse(text: string): ParsedCaptureResult {
       segment: 'A2 RFP Active',
       offer_angle: 'RFP Intelligence',
       stage: 'Replied',
-      deal_value_estimate: 150000,
-      monthly_retainer_estimate: 30000,
+      deal_value_estimate: 0,
+      monthly_retainer_estimate: 0,
       next_action: 'Email company profile details',
       pain_points: 'Manual information processing',
       notes: `Parsed automatically: "${text.substring(0, 100)}..."`
