@@ -20,9 +20,9 @@ import { SettingsView } from './components/SettingsView';
 import { CalendarView } from './components/CalendarView';
 
 const AppContent: React.FC = () => {
-  const { user, activeTab, isLoading, errorMsg } = useValithOS();
+  const { user, activeTab, isLoading, errorMsg, leads } = useValithOS();
 
-  if (isLoading) {
+  if (isLoading && leads.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background space-y-4">
         {/* aurum spinner */}

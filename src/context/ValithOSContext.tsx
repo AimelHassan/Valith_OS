@@ -124,7 +124,13 @@ export const ValithOSProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('Dashboard');
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem('vos_active_tab') || 'Dashboard';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('vos_active_tab', activeTab);
+  }, [activeTab]);
   const [user, setUser] = useState<any | null>(null);
 
   // Authentication & Session

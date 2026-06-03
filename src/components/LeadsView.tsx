@@ -40,9 +40,17 @@ export const LeadsView: React.FC = () => {
   } = useValithOS();
 
   // Search & Filter
-  const [search, setSearch] = useState('');
-  const [stageFilter, setStageFilter] = useState('');
+  const [search, setSearch] = useState(() => localStorage.getItem('vos_leads_search') || '');
+  const [stageFilter, setStageFilter] = useState(() => localStorage.getItem('vos_leads_stage_filter') || '');
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    localStorage.setItem('vos_leads_search', search);
+  }, [search]);
+
+  React.useEffect(() => {
+    localStorage.setItem('vos_leads_stage_filter', stageFilter);
+  }, [stageFilter]);
 
   // Edit State
   const [isEditing, setIsEditing] = useState(false);
