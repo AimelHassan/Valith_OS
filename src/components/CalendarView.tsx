@@ -37,8 +37,22 @@ export const CalendarView: React.FC = () => {
   const [quickMeetingType, setQuickMeetingType] = useState('Discovery Call');
   const [quickMeetingStatus, setQuickMeetingStatus] = useState('Scheduled');
 
-  // Filter leads that have scheduled meetings
-  const meetingLeads = leads.filter((l) => l.next_meeting_at);
+  // Filter leads that have scheduled meetings or are in "Meeting Scheduled" stage
+  const meetingLeads = leads
+    .filter((l) => l.next_meeting_at || l.stage === 'Meeting Scheduled')
+    .map((l) => {
+      if (l.stage === 'Meeting Scheduled' && !l.next_meeting_at) {
+        const todayAt5 = new Date();
+        todayAt5.setHours(17, 0, 0, 0);
+        return {
+          ...l,
+          next_meeting_at: todayAt5.toISOString(),
+          meeting_type: l.meeting_type || 'Discovery Call',
+          meeting_status: l.meeting_status || 'Pending'
+        };
+      }
+      return l;
+    });
 
   // Navigate weeks
   const adjustWeek = (direction: 'prev' | 'next') => {
