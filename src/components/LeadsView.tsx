@@ -143,7 +143,11 @@ export const LeadsView: React.FC = () => {
       buying_signals: editBuyingSignals,
       objections: editObjections,
       notes: editNotes,
-      next_meeting_at: editNextMeetingAt || null,
+      next_meeting_at: (() => {
+        if (!editNextMeetingAt) return null;
+        const d = new Date(editNextMeetingAt);
+        return isNaN(d.getTime()) ? null : d.toISOString();
+      })(),
       meeting_type: editNextMeetingAt ? editMeetingType : null,
       meeting_status: editNextMeetingAt ? editMeetingStatus : null
     });
