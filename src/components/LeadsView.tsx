@@ -236,7 +236,7 @@ export const LeadsView: React.FC = () => {
           status: 'Active',
           priority: 'Medium',
           probability_percent: 10,
-          deal_value_estimate: valueEstimate,
+          deal_value_estimate: 0,
           monthly_retainer_estimate: 0,
           next_action: 'Perform audit'
         });
@@ -618,34 +618,32 @@ export const LeadsView: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[10px] font-bold uppercase text-typography-muted mb-1">
-                    Estimated Setup Value
-                    {!isValueAllowed && <span className="text-[9px] font-normal text-red-500 lowercase ml-1">(Unavailable for early stage)</span>}
-                  </label>
-                  <input
-                    type="number"
-                    value={isValueAllowed ? editValue : 0}
-                    disabled={!isValueAllowed}
-                    onChange={(e) => setEditValue(Number(e.target.value))}
-                    className="w-full text-xs disabled:opacity-50 disabled:bg-background-soft"
-                  />
+              {isValueAllowed && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase text-typography-muted mb-1">
+                      Estimated Setup Value
+                    </label>
+                    <input
+                      type="number"
+                      value={editValue}
+                      onChange={(e) => setEditValue(Number(e.target.value))}
+                      className="w-full text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase text-typography-muted mb-1">
+                      Monthly Retainer
+                    </label>
+                    <input
+                      type="number"
+                      value={editRetainer}
+                      onChange={(e) => setEditRetainer(Number(e.target.value))}
+                      className="w-full text-xs"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-[10px] font-bold uppercase text-typography-muted mb-1">
-                    Monthly Retainer
-                    {!isValueAllowed && <span className="text-[9px] font-normal text-red-500 lowercase ml-1">(Unavailable for early stage)</span>}
-                  </label>
-                  <input
-                    type="number"
-                    value={isValueAllowed ? editRetainer : 0}
-                    disabled={!isValueAllowed}
-                    onChange={(e) => setEditRetainer(Number(e.target.value))}
-                    className="w-full text-xs disabled:opacity-50 disabled:bg-background-soft"
-                  />
-                </div>
-              </div>
+              )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div>

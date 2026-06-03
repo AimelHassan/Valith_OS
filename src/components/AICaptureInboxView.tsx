@@ -155,8 +155,8 @@ export const AICaptureInboxView: React.FC = () => {
         status: 'Active',
         priority: 'Medium',
         probability_percent: 10,
-        deal_value_estimate: Number(leadVal),
-        monthly_retainer_estimate: Number(leadRet),
+        deal_value_estimate: 0,
+        monthly_retainer_estimate: 0,
         next_action: leadAction,
         pain_points: leadPains
       });
@@ -345,16 +345,7 @@ export const AICaptureInboxView: React.FC = () => {
                     </select>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[9px] text-typography-muted mb-0.5 font-semibold uppercase">Setup Value (PKR)</label>
-                    <input type="number" value={leadVal} onChange={e => setLeadVal(Number(e.target.value))} className="w-full text-xs p-1" />
-                  </div>
-                  <div>
-                    <label className="block text-[9px] text-typography-muted mb-0.5 font-semibold uppercase">Retainer (PKR)</label>
-                    <input type="number" value={leadRet} onChange={e => setLeadRet(Number(e.target.value))} className="w-full text-xs p-1" />
-                  </div>
-                </div>
+
                 <div>
                   <label className="block text-[9px] text-typography-muted mb-0.5 font-semibold uppercase">Next Action</label>
                   <input type="text" value={leadAction} onChange={e => setLeadAction(e.target.value)} className="w-full text-xs p-1" />

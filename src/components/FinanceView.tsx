@@ -20,12 +20,33 @@ export const FinanceView: React.FC = () => {
     payments,
     cashAccounts,
     organizations,
+    leads,
     savePayment,
     deletePayment,
     saveCashAccount,
     deleteCashAccount,
     refreshAll
   } = useValithOS();
+
+  const getLeadStageForPayment = (payment: any) => {
+    if (payment.lead_id) {
+      const lead = leads.find((l) => l.id === payment.lead_id);
+      return lead ? lead.stage : null;
+    }
+    if (payment.organization_id) {
+      const orgLeads = leads.filter((l) => l.organization_id === payment.organization_id);
+      if (orgLeads.length > 0) {
+        const warmLead = orgLeads.find(l => ['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(l.stage));
+        return warmLead ? warmLead.stage : orgLeads[0].stage;
+      }
+    }
+    return null;
+  };
+
+  const isWarmStage = (stage: string | null) => {
+    if (!stage) return true; // Standalone payments not linked to any pipeline lead are allowed
+    return ['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(stage);
+  };
 
   // Modals
   const [showAddPayment, setShowAddPayment] = useState(false);
@@ -63,9 +84,18 @@ export const FinanceView: React.FC = () => {
 
   // Metrics
   const cashTotal = cashAccounts.reduce((sum, c) => sum + c.current_balance, 0);
-  const receivedTotal = payments.filter(p => p.status === 'Received').reduce((sum, p) => sum + convertToPKR(p.amount, p.currency), 0);
-  const lockedTotal = payments.filter(p => p.status === 'Locked').reduce((sum, p) => sum + convertToPKR(p.amount, p.currency), 0);
-  const expectedTotal = payments.filter(p => p.status === 'Expected').reduce((sum, p) => sum + convertToPKR(p.amount, p.currency), 0);
+  const receivedTotal = payments
+    .filter(p => p.status === 'Received')
+    .filter(p => isWarmStage(getLeadStageForPayment(p)))
+    .reduce((sum, p) => sum + convertToPKR(p.amount, p.currency), 0);
+  const lockedTotal = payments
+    .filter(p => p.status === 'Locked')
+    .filter(p => isWarmStage(getLeadStageForPayment(p)))
+    .reduce((sum, p) => sum + convertToPKR(p.amount, p.currency), 0);
+  const expectedTotal = payments
+    .filter(p => p.status === 'Expected')
+    .filter(p => isWarmStage(getLeadStageForPayment(p)))
+    .reduce((sum, p) => sum + convertToPKR(p.amount, p.currency), 0);
 
   // Submit Payment
   const handlePaymentSubmit = async (e: React.FormEvent) => {
@@ -154,7 +184,9 @@ export const FinanceView: React.FC = () => {
   // CSV Export
   const handleExportCSV = () => {
     let csv = 'Client Name,Type,Amount,Currency,Status,Invoice Sent,Due Date,Received Date,Method,Notes\n';
-    payments.forEach((p) => {
+    payments
+      .filter(p => isWarmStage(getLeadStageForPayment(p)))
+      .forEach((p) => {
       csv += `"${p.client_name.replace(/"/g, '""')}",${p.revenue_type},${p.amount},${p.currency},${p.status},${p.invoice_sent_date || ''},${p.due_date || ''},${p.received_date || ''},"${p.payment_method || ''}","${(p.notes || '').replace(/"/g, '""')}"\n`;
     });
 
@@ -296,14 +328,16 @@ export const FinanceView: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {payments.length === 0 ? (
+                {payments.filter(p => isWarmStage(getLeadStageForPayment(p))).length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-8 text-center text-typography-light">
                       No payment records in ledger.
                     </td>
                   </tr>
                 ) : (
-                  payments.map((pay) => (
+                  payments
+                    .filter(p => isWarmStage(getLeadStageForPayment(p)))
+                    .map((pay) => (
                     <tr key={pay.id} className="hover:bg-background-soft transition-all">
                       <td className="py-3 font-bold text-typography">
                         <div>

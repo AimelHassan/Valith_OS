@@ -15,10 +15,34 @@ export const MRRView: React.FC = () => {
     mrrEntries,
     organizations,
     deals,
+    leads,
     saveMRREntry,
     deleteMRREntry,
     refreshAll
   } = useValithOS();
+
+  const getLeadStageForMRR = (mrr: any) => {
+    if (mrr.deal_id) {
+      const deal = deals.find((d) => d.id === mrr.deal_id);
+      if (deal && deal.lead_id) {
+        const lead = leads.find((l) => l.id === deal.lead_id);
+        return lead ? lead.stage : null;
+      }
+    }
+    if (mrr.organization_id) {
+      const orgLeads = leads.filter((l) => l.organization_id === mrr.organization_id);
+      if (orgLeads.length > 0) {
+        const warmLead = orgLeads.find(l => ['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(l.stage));
+        return warmLead ? warmLead.stage : orgLeads[0].stage;
+      }
+    }
+    return null;
+  };
+
+  const isWarmStage = (stage: string | null) => {
+    if (!stage) return true; // Standalone retainers not linked to any pipeline lead are allowed
+    return ['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(stage);
+  };
 
   const [showAddModal, setShowAddModal] = useState(false);
   
@@ -35,8 +59,12 @@ export const MRRView: React.FC = () => {
   const [notes, setNotes] = useState('');
 
   // Math
-  const activeTotal = mrrEntries.filter(m => m.status === 'Active').reduce((sum, m) => sum + m.monthly_amount, 0);
-  const expectedTotal = mrrEntries.filter(m => m.status === 'Expected').reduce((sum, m) => sum + m.monthly_amount, 0);
+  const activeTotal = mrrEntries
+    .filter(m => m.status === 'Active' && isWarmStage(getLeadStageForMRR(m)))
+    .reduce((sum, m) => sum + m.monthly_amount, 0);
+  const expectedTotal = mrrEntries
+    .filter(m => m.status === 'Expected' && isWarmStage(getLeadStageForMRR(m)))
+    .reduce((sum, m) => sum + m.monthly_amount, 0);
 
   // Submit MRR
   const handleSubmit = async (e: React.FormEvent) => {
@@ -131,14 +159,16 @@ export const MRRView: React.FC = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {mrrEntries.length === 0 ? (
+            {mrrEntries.filter(m => isWarmStage(getLeadStageForMRR(m))).length === 0 ? (
               <tr>
                 <td colSpan={7} className="py-12 text-center text-typography-light">
                   No monthly recurring retainers active or expected.
                 </td>
               </tr>
             ) : (
-              mrrEntries.map((mrr) => (
+              mrrEntries
+                .filter(m => isWarmStage(getLeadStageForMRR(m)))
+                .map((mrr) => (
                 <tr key={mrr.id} className="hover:bg-background-soft transition-all">
                   <td className="py-3.5 px-4 font-bold text-typography">{mrr.client_name}</td>
                   <td className="py-3.5 px-4 text-typography-muted">{mrr.service_name}</td>

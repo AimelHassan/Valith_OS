@@ -32,9 +32,18 @@ export async function buildDatabaseContextSummary(): Promise<string> {
 
     // Helpers to resolve lead stages for payments and MRR entries
     const getLeadStageForPayment = (payment: any) => {
-      if (!payment.lead_id) return null;
-      const lead = leads.find((l) => l.id === payment.lead_id);
-      return lead ? lead.stage : null;
+      if (payment.lead_id) {
+        const lead = leads.find((l) => l.id === payment.lead_id);
+        return lead ? lead.stage : null;
+      }
+      if (payment.organization_id) {
+        const orgLeads = leads.filter((l) => l.organization_id === payment.organization_id);
+        if (orgLeads.length > 0) {
+          const warmLead = orgLeads.find(l => ['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(l.stage));
+          return warmLead ? warmLead.stage : orgLeads[0].stage;
+        }
+      }
+      return null;
     };
 
     const getLeadStageForMRR = (mrr: any) => {
@@ -46,8 +55,11 @@ export async function buildDatabaseContextSummary(): Promise<string> {
         }
       }
       if (mrr.organization_id) {
-        const lead = leads.find((l) => l.organization_id === mrr.organization_id);
-        return lead ? lead.stage : null;
+        const orgLeads = leads.filter((l) => l.organization_id === mrr.organization_id);
+        if (orgLeads.length > 0) {
+          const warmLead = orgLeads.find(l => ['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(l.stage));
+          return warmLead ? warmLead.stage : orgLeads[0].stage;
+        }
       }
       return null;
     };
