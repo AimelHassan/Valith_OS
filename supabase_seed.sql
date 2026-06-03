@@ -6,26 +6,26 @@ TRUNCATE settings, ai_captures, documents, cash_accounts, expenses, mrr_entries,
 
 -- 1. Insert Core Offers
 INSERT INTO offers (id, name, description) VALUES
-('o0000000-0000-0000-0000-000000000001', 'RFP Intelligence', 'Tender parsing, compliance checking, fit assessment and compliance reports.'),
-('o0000000-0000-0000-0000-000000000002', 'WhatsApp Workflow', 'Inbound WhatsApp customer routing, lead qualification, and automatic intake.'),
-('o0000000-0000-0000-0000-000000000003', 'AI Workflow Audit', 'Process diagnostic audit to highlight automation leverage points.'),
-('o0000000-0000-0000-0000-000000000004', 'Inbox Automation', 'Eon-style email processing, automatic categorization, and context generation.'),
-('o0000000-0000-0000-0000-000000000005', 'Lead Qualification', 'Screening qualification checklists and dynamic CRM syncing.'),
-('o0000000-0000-0000-0000-000000000006', 'Partnership', 'Implementation partnership, workflow mapping, and AI-enabled operations.'),
-('o0000000-0000-0000-0000-000000000007', 'Other', 'General custom AI development and systems consulting.');
+('a1000000-0000-0000-0000-000000000001', 'RFP Intelligence', 'Tender parsing, compliance checking, fit assessment and compliance reports.'),
+('a1000000-0000-0000-0000-000000000002', 'WhatsApp Workflow', 'Inbound WhatsApp customer routing, lead qualification, and automatic intake.'),
+('a1000000-0000-0000-0000-000000000003', 'AI Workflow Audit', 'Process diagnostic audit to highlight automation leverage points.'),
+('a1000000-0000-0000-0000-000000000004', 'Inbox Automation', 'Eon-style email processing, automatic categorization, and context generation.'),
+('a1000000-0000-0000-0000-000000000005', 'Lead Qualification', 'Screening qualification checklists and dynamic CRM syncing.'),
+('a1000000-0000-0000-0000-000000000006', 'Partnership', 'Implementation partnership, workflow mapping, and AI-enabled operations.'),
+('a1000000-0000-0000-0000-000000000007', 'Other', 'General custom AI development and systems consulting.');
 
 -- 2. Insert Core Segments
 INSERT INTO segments (id, name, description) VALUES
-('s0000000-0000-0000-0000-000000000001', 'A1 Whale', 'Enterprise targets with massive workflow overhead'),
-('s0000000-0000-0000-0000-000000000002', 'A2 RFP Active', 'Organizations actively bidding on RFPs/Tenders'),
-('s0000000-0000-0000-0000-000000000003', 'A3 Smaller RFP Active', 'Medium event-planning or operational bidding teams'),
-('s0000000-0000-0000-0000-000000000004', 'A4 Workflow Fit', 'Heavy back-office admin tasks, messaging or intake workload'),
-('s0000000-0000-0000-0000-000000000005', 'Foreign Lead', 'International outbound sales leads'),
-('s0000000-0000-0000-0000-000000000006', 'Foreign Partner', 'Outsource implementation partner network'),
-('s0000000-0000-0000-0000-000000000007', 'Foreign Strategic', 'Saudi / GCC cross-border advisory, legal-tech networks'),
-('s0000000-0000-0000-0000-000000000008', 'Market Insight', 'PR, media, communications connectors for research'),
-('s0000000-0000-0000-0000-000000000009', 'Connector', 'Advisory policy connectors for referral networks'),
-('s0000000-0000-0000-0000-000000000010', 'Archived / Cold', 'Accounts flagged as inactive, archived, or cold');
+('ae100000-0000-0000-0000-000000000001', 'A1 Whale', 'Enterprise targets with massive workflow overhead'),
+('ae100000-0000-0000-0000-000000000002', 'A2 RFP Active', 'Organizations actively bidding on RFPs/Tenders'),
+('ae100000-0000-0000-0000-000000000003', 'A3 Smaller RFP Active', 'Medium event-planning or operational bidding teams'),
+('ae100000-0000-0000-0000-000000000004', 'A4 Workflow Fit', 'Heavy back-office admin tasks, messaging or intake workload'),
+('ae100000-0000-0000-0000-000000000005', 'Foreign Lead', 'International outbound sales leads'),
+('ae100000-0000-0000-0000-000000000006', 'Foreign Partner', 'Outsource implementation partner network'),
+('ae100000-0000-0000-0000-000000000007', 'Foreign Strategic', 'Saudi / GCC cross-border advisory, legal-tech networks'),
+('ae100000-0000-0000-0000-000000000008', 'Market Insight', 'PR, media, communications connectors for research'),
+('ae100000-0000-0000-0000-000000000009', 'Connector', 'Advisory policy connectors for referral networks'),
+('ae100000-0000-0000-0000-000000000010', 'Archived / Cold', 'Accounts flagged as inactive, archived, or cold');
 
 -- 3. Insert Settings
 INSERT INTO settings (key, value) VALUES
@@ -132,61 +132,61 @@ INSERT INTO deals (
 INSERT INTO tasks (
     id, lead_id, organization_id, deal_id, title, description, task_type, due_date, priority, status
 ) VALUES
-('t0000000-0000-0000-0000-000000000001', NULL, NULL, NULL, 'Study for next exam', 'Do not let MARCEM silence hijack exam prep.', 'Admin', '2026-06-03', 'High', 'Open'),
-('t0000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0000-000000000002', 'b0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000002', 'MARCEM reset follow-up', 'Salam Sheraz bhai, hope you''re doing well. Just checking when it would be convenient to meet properly. I''d prefer to lock a time in advance so I can plan accordingly. Please share the office pin/location whenever you confirm.', 'Follow-up', '2026-06-04', 'High', 'Open'),
-('t0000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'OD payment check', 'Imran said payment after cheque clears Thursday. If no update by reasonable time, send calm follow-up.', 'Payment', '2026-06-04', 'High', 'Open'),
-('t0000000-0000-0000-0000-000000000004', 'd0000000-0000-0000-0000-000000000007', 'b0000000-0000-0000-0000-000000000007', 'e0000000-0000-0000-0000-000000000005', 'Sardar follow-up with demo CTA', 'Sardar sb, just checking if the proposal was clear. I kept it focused specifically on the RFP/tender intelligence layer, not general tender sourcing. If useful, I can also send a short 2 to 3 minute demo video customized around MarCom/event-agency workflows.', 'Follow-up', '2026-06-04', 'Medium', 'Open'),
-('t0000000-0000-0000-0000-000000000005', 'd0000000-0000-0000-0000-000000000006', 'b0000000-0000-0000-0000-000000000006', 'e0000000-0000-0000-0000-000000000004', 'Ahmad / Protribes follow-up', 'Ahmad sb, just checking if the email landed properly. I kept it focused on the RFP/tender intelligence workflow and how it differs from simple tender alerts. Happy to share a short demo if relevant.', 'Follow-up', '2026-06-05', 'Medium', 'Open'),
-('t0000000-0000-0000-0000-000000000006', 'd0000000-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000003', 'Book/confirm Hil call', 'Prepare discovery questions around intake workflow, qualification calls, CRM, Calendly, lead volume, bad-fit percentage and voice vs email/form.', 'Meeting', '2026-06-08', 'High', 'Open'),
-('t0000000-0000-0000-0000-000000000007', 'd0000000-0000-0000-0000-000000000005', 'b0000000-0000-0000-0000-000000000005', NULL, 'Reply to Hind for June 11', 'Hi Hind, thank you for sharing. Wednesday, 10 June at 1 PM is a bit tight on my end. Would Thursday, 11 June at the same time work instead? Please feel free to send over the invitation if that is convenient.', 'Follow-up', '2026-06-03', 'Medium', 'Open'),
-('t0000000-0000-0000-0000-000000000008', 'd0000000-0000-0000-0000-000000000005', 'b0000000-0000-0000-0000-000000000005', NULL, 'Prepare Jeanina/Hind discovery brief', 'Treat as strategic discovery, not sales pitch. Validate regulated AI implementation gap.', 'Admin', '2026-06-10', 'Medium', 'Open'),
-('t0000000-0000-0000-0000-000000000009', 'd0000000-0000-0000-0000-000000000004', 'b0000000-0000-0000-0000-000000000004', NULL, 'Prepare Karina call brief', 'Position Valith as implementation partner for workflow pilots, not offshore dev shop.', 'Admin', '2026-06-11', 'High', 'Open'),
-('t0000000-0000-0000-0000-000000000010', NULL, NULL, NULL, 'Update Valith OS daily', 'Every lead interaction should be pasted into AI Capture. Export Founder Brief at end of day.', 'Admin', '2026-06-04', 'Medium', 'Open');
+('f0000000-0000-0000-0000-000000000001', NULL, NULL, NULL, 'Study for next exam', 'Do not let MARCEM silence hijack exam prep.', 'Admin', '2026-06-03', 'High', 'Open'),
+('f0000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0000-000000000002', 'b0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000002', 'MARCEM reset follow-up', 'Salam Sheraz bhai, hope you''re doing well. Just checking when it would be convenient to meet properly. I''d prefer to lock a time in advance so I can plan accordingly. Please share the office pin/location whenever you confirm.', 'Follow-up', '2026-06-04', 'High', 'Open'),
+('f0000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'OD payment check', 'Imran said payment after cheque clears Thursday. If no update by reasonable time, send calm follow-up.', 'Payment', '2026-06-04', 'High', 'Open'),
+('f0000000-0000-0000-0000-000000000004', 'd0000000-0000-0000-0000-000000000007', 'b0000000-0000-0000-0000-000000000007', 'e0000000-0000-0000-0000-000000000005', 'Sardar follow-up with demo CTA', 'Sardar sb, just checking if the proposal was clear. I kept it focused specifically on the RFP/tender intelligence layer, not general tender sourcing. If useful, I can also send a short 2 to 3 minute demo video customized around MarCom/event-agency workflows.', 'Follow-up', '2026-06-04', 'Medium', 'Open'),
+('f0000000-0000-0000-0000-000000000005', 'd0000000-0000-0000-0000-000000000006', 'b0000000-0000-0000-0000-000000000006', 'e0000000-0000-0000-0000-000000000004', 'Ahmad / Protribes follow-up', 'Ahmad sb, just checking if the email landed properly. I kept it focused on the RFP/tender intelligence workflow and how it differs from simple tender alerts. Happy to share a short demo if relevant.', 'Follow-up', '2026-06-05', 'Medium', 'Open'),
+('f0000000-0000-0000-0000-000000000006', 'd0000000-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000003', 'Book/confirm Hil call', 'Prepare discovery questions around intake workflow, qualification calls, CRM, Calendly, lead volume, bad-fit percentage and voice vs email/form.', 'Meeting', '2026-06-08', 'High', 'Open'),
+('f0000000-0000-0000-0000-000000000007', 'd0000000-0000-0000-0000-000000000005', 'b0000000-0000-0000-0000-000000000005', NULL, 'Reply to Hind for June 11', 'Hi Hind, thank you for sharing. Wednesday, 10 June at 1 PM is a bit tight on my end. Would Thursday, 11 June at the same time work instead? Please feel free to send over the invitation if that is convenient.', 'Follow-up', '2026-06-03', 'Medium', 'Open'),
+('f0000000-0000-0000-0000-000000000008', 'd0000000-0000-0000-0000-000000000005', 'b0000000-0000-0000-0000-000000000005', NULL, 'Prepare Jeanina/Hind discovery brief', 'Treat as strategic discovery, not sales pitch. Validate regulated AI implementation gap.', 'Admin', '2026-06-10', 'Medium', 'Open'),
+('f0000000-0000-0000-0000-000000000009', 'd0000000-0000-0000-0000-000000000004', 'b0000000-0000-0000-0000-000000000004', NULL, 'Prepare Karina call brief', 'Position Valith as implementation partner for workflow pilots, not offshore dev shop.', 'Admin', '2026-06-11', 'High', 'Open'),
+('f0000000-0000-0000-0000-000000000010', NULL, NULL, NULL, 'Update Valith OS daily', 'Every lead interaction should be pasted into AI Capture. Export Founder Brief at end of day.', 'Admin', '2026-06-04', 'Medium', 'Open');
 
 -- 10. Insert Revenue Payments
 INSERT INTO revenue_payments (
     id, organization_id, lead_id, deal_id, client_name, revenue_type, amount, currency, status, invoice_sent_date, due_date, received_date, notes
 ) VALUES
-('rp000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'Optimize Digital', 'Project', 150000, 'PKR', 'Locked', '2026-05-22', '2026-05-27', NULL, 'First official signed Valith client. Treat payment as locked/received for planning. Delivery starts after actual funds clear.'),
-('rp000000-0000-0000-0000-000000000002', 'b0000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000002', 'MARCEM', 'Project', 225000, 'PKR', 'Expected', NULL, NULL, NULL, 'Recommended Phase 1 implementation target. Lean fallback is 150000 setup.'),
-('rp000000-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000002', 'MARCEM', 'Retainer', 45000, 'PKR', 'Expected', NULL, NULL, NULL, 'Recommended monthly support/maintenance if Phase 1 closes. Lean fallback 25000/month.'),
-('rp000000-0000-0000-0000-000000000004', 'b0000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000003', 'Franchise Mavericks', 'Project', 2000, 'USD', 'Expected', NULL, NULL, NULL, 'Use 2000 USD as conservative planning placeholder. Realistic range 1000 to 4000 USD depending scope.'),
-('rp000000-0000-0000-0000-000000000005', 'b0000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000003', 'Franchise Mavericks', 'Retainer', 500, 'USD', 'Expected', NULL, NULL, NULL, 'Possible ongoing support/optimization retainer. Realistic range 300 to 750 USD/month.'),
-('rp000000-0000-0000-0000-000000000006', 'b0000000-0000-0000-0000-000000000006', 'd0000000-0000-0000-0000-000000000006', 'e0000000-0000-0000-0000-000000000004', 'Protribes', 'Project', 225000, 'PKR', 'Expected', NULL, NULL, NULL, 'Only if RFP Intelligence call converts.'),
-('rp000000-0000-0000-0000-000000000007', 'b0000000-0000-0000-0000-000000000006', 'd0000000-0000-0000-0000-000000000006', 'e0000000-0000-0000-0000-000000000004', 'Protribes', 'Retainer', 45000, 'PKR', 'Expected', NULL, NULL, NULL, 'Possible monthly support if Phase 1 closes.'),
-('rp000000-0000-0000-0000-000000000008', 'b0000000-0000-0000-0000-000000000007', 'd0000000-0000-0000-0000-000000000007', 'e0000000-0000-0000-0000-000000000005', 'Sardar / MarCom-related', 'Project', 225000, 'PKR', 'Expected', NULL, NULL, NULL, 'Objection-stage lead due existing provider.');
+('a2000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'Optimize Digital', 'Project', 150000, 'PKR', 'Locked', '2026-05-22', '2026-05-27', NULL, 'First official signed Valith client. Treat payment as locked/received for planning. Delivery starts after actual funds clear.'),
+('a2000000-0000-0000-0000-000000000002', 'b0000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000002', 'MARCEM', 'Project', 225000, 'PKR', 'Expected', NULL, NULL, NULL, 'Recommended Phase 1 implementation target. Lean fallback is 150000 setup.'),
+('a2000000-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000002', 'MARCEM', 'Retainer', 45000, 'PKR', 'Expected', NULL, NULL, NULL, 'Recommended monthly support/maintenance if Phase 1 closes. Lean fallback 25000/month.'),
+('a2000000-0000-0000-0000-000000000004', 'b0000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000003', 'Franchise Mavericks', 'Project', 2000, 'USD', 'Expected', NULL, NULL, NULL, 'Use 2000 USD as conservative planning placeholder. Realistic range 1000 to 4000 USD depending scope.'),
+('a2000000-0000-0000-0000-000000000005', 'b0000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000003', 'Franchise Mavericks', 'Retainer', 500, 'USD', 'Expected', NULL, NULL, NULL, 'Possible ongoing support/optimization retainer. Realistic range 300 to 750 USD/month.'),
+('a2000000-0000-0000-0000-000000000006', 'b0000000-0000-0000-0000-000000000006', 'd0000000-0000-0000-0000-000000000006', 'e0000000-0000-0000-0000-000000000004', 'Protribes', 'Project', 225000, 'PKR', 'Expected', NULL, NULL, NULL, 'Only if RFP Intelligence call converts.'),
+('a2000000-0000-0000-0000-000000000007', 'b0000000-0000-0000-0000-000000000006', 'd0000000-0000-0000-0000-000000000006', 'e0000000-0000-0000-0000-000000000004', 'Protribes', 'Retainer', 45000, 'PKR', 'Expected', NULL, NULL, NULL, 'Possible monthly support if Phase 1 closes.'),
+('a2000000-0000-0000-0000-000000000008', 'b0000000-0000-0000-0000-000000000007', 'd0000000-0000-0000-0000-000000000007', 'e0000000-0000-0000-0000-000000000005', 'Sardar / MarCom-related', 'Project', 225000, 'PKR', 'Expected', NULL, NULL, NULL, 'Objection-stage lead due existing provider.');
 
 -- 11. Insert MRR Entries
 INSERT INTO mrr_entries (
     id, organization_id, deal_id, client_name, service_name, monthly_amount, currency, status, start_date, notes
 ) VALUES
-('mr000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000002', 'MARCEM', 'RFP Intelligence support and source monitoring', 45000, 'PKR', 'Expected', NULL, 'Ongoing tender workflow retainer.'),
-('mr000000-0000-0000-0000-000000000002', 'b0000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000003', 'Franchise Mavericks', 'Lead qualification workflow support', 500, 'USD', 'Expected', NULL, 'Ongoing support of qualification integrations.'),
-('mr000000-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-000000000006', 'e0000000-0000-0000-0000-000000000004', 'Protribes', 'RFP Intelligence support and source monitoring', 45000, 'PKR', 'Expected', NULL, 'Retainer for Protribes RFP monitor.');
+('a3000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000002', 'MARCEM', 'RFP Intelligence support and source monitoring', 45000, 'PKR', 'Expected', NULL, 'Ongoing tender workflow retainer.'),
+('a3000000-0000-0000-0000-000000000002', 'b0000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000003', 'Franchise Mavericks', 'Lead qualification workflow support', 500, 'USD', 'Expected', NULL, 'Ongoing support of qualification integrations.'),
+('a3000000-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-000000000006', 'e0000000-0000-0000-0000-000000000004', 'Protribes', 'RFP Intelligence support and source monitoring', 45000, 'PKR', 'Expected', NULL, 'Retainer for Protribes RFP monitor.');
 
 -- 12. Insert Expenses
 INSERT INTO expenses (
     id, expense_name, vendor, category, amount, currency, billing_type, payment_status, due_date, notes
 ) VALUES
-('ex000000-0000-0000-0000-000000000001', 'ChatGPT Plus', 'OpenAI', 'Tools', 20, 'USD', 'Monthly', 'Paid', NULL, 'Used for Valith strategy, writing, research, coding assistance.'),
-('ex000000-0000-0000-0000-000000000002', 'Claude Pro', 'Anthropic', 'Tools', 20, 'USD', 'Monthly', 'Paid', NULL, 'Used for copywriting, research, design/coding assistance.'),
-('ex000000-0000-0000-0000-000000000003', 'valith.tech domain', 'Namecheap', 'Domain', 12, 'USD', 'Yearly', 'Paid', '2026-12-31', 'Valith domain and email identity.'),
-('ex000000-0000-0000-0000-000000000004', 'Supabase / Vercel / Hosting', 'Supabase', 'Hosting', 0, 'USD', 'Monthly', 'Paid', NULL, 'Valith OS and demos. Free tier.'),
-('ex000000-0000-0000-0000-000000000005', 'Gemini / Google AI', 'Google Cloud', 'Tools', 0, 'USD', 'Monthly', 'Paid', NULL, 'Used for Valith OS AI capture and research. Free tier.'),
-('ex000000-0000-0000-0000-000000000006', 'Transport / Client meetings', 'Local', 'Transport', 1000, 'PKR', 'One-time', 'Upcoming', '2026-06-04', 'Bike petrol for client meetings, especially MARCEM DHA/Islamabad-side trip.'),
-('ex000000-0000-0000-0000-000000000007', 'Meta Ads Test', 'Meta', 'Ads', 5000, 'PKR', 'One-time', 'Cancelled', NULL, 'Planned WhatsApp AI workflow assistant test. Stated as cancelled so it doesn''t affect burn rates until launched.'),
-('ex000000-0000-0000-0000-000000000008', 'Coworking Seat', 'Cowork Space', 'Coworking', 10000, 'PKR', 'Monthly', 'Cancelled', NULL, 'Planned coworking seat. Stated as cancelled so it doesn''t affect burn rates until OD cash clears.');
+('ae000000-0000-0000-0000-000000000001', 'ChatGPT Plus', 'OpenAI', 'Tools', 20, 'USD', 'Monthly', 'Paid', NULL, 'Used for Valith strategy, writing, research, coding assistance.'),
+('ae000000-0000-0000-0000-000000000002', 'Claude Pro', 'Anthropic', 'Tools', 20, 'USD', 'Monthly', 'Paid', NULL, 'Used for copywriting, research, design/coding assistance.'),
+('ae000000-0000-0000-0000-000000000003', 'valith.tech domain', 'Namecheap', 'Domain', 12, 'USD', 'Yearly', 'Paid', '2026-12-31', 'Valith domain and email identity.'),
+('ae000000-0000-0000-0000-000000000004', 'Supabase / Vercel / Hosting', 'Supabase', 'Hosting', 0, 'USD', 'Monthly', 'Paid', NULL, 'Valith OS and demos. Free tier.'),
+('ae000000-0000-0000-0000-000000000005', 'Gemini / Google AI', 'Google Cloud', 'Tools', 0, 'USD', 'Monthly', 'Paid', NULL, 'Used for Valith OS AI capture and research. Free tier.'),
+('ae000000-0000-0000-0000-000000000006', 'Transport / Client meetings', 'Local', 'Transport', 1000, 'PKR', 'One-time', 'Upcoming', '2026-06-04', 'Bike petrol for client meetings, especially MARCEM DHA/Islamabad-side trip.'),
+('ae000000-0000-0000-0000-000000000007', 'Meta Ads Test', 'Meta', 'Ads', 5000, 'PKR', 'One-time', 'Cancelled', NULL, 'Planned WhatsApp AI workflow assistant test. Stated as cancelled so it doesn''t affect burn rates until launched.'),
+('ae000000-0000-0000-0000-000000000008', 'Coworking Seat', 'Cowork Space', 'Coworking', 10000, 'PKR', 'Monthly', 'Cancelled', NULL, 'Planned coworking seat. Stated as cancelled so it doesn''t affect burn rates until OD cash clears.');
 
 -- 13. Insert Documents
 INSERT INTO documents (
     id, organization_id, lead_id, deal_id, title, document_type, file_url, status, notes
 ) VALUES
-('doc00000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'Optimize Digital SOW', 'SOW', NULL, 'Signed', 'Signed SOW for first client.'),
-('doc00000-0000-0000-0000-000000000002', 'b0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'Optimize Digital Invoice', 'Invoice', NULL, 'Sent', 'Invoice sent for payment clearance.'),
-('doc00000-0000-0000-0000-000000000003', NULL, NULL, NULL, 'RFP Intelligence Demo Video', 'Demo', NULL, 'Draft', 'Valith general sales demo video.'),
-('doc00000-0000-0000-0000-000000000004', 'b0000000-0000-0000-0000-000000000007', 'd0000000-0000-0000-0000-000000000007', 'e0000000-0000-0000-0000-000000000005', 'Valith RFP/Tender Intelligence One-page Proposal PDF', 'Proposal', NULL, 'Sent', 'Proposal PDF sent to Sardar.'),
-('doc00000-0000-0000-0000-000000000005', NULL, NULL, NULL, 'Valith RFP/Tender Intelligence Proposal DOCX', 'Proposal', NULL, 'Draft', 'Editable template proposal.'),
-('doc00000-0000-0000-0000-000000000006', 'b0000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000003', 'Hil Cold Email Copy', 'Notes', NULL, 'Sent', 'Cold outbound copy that converted.'),
-('doc00000-0000-0000-0000-000000000007', 'b0000000-0000-0000-0000-000000000006', 'd0000000-0000-0000-0000-000000000006', 'e0000000-0000-0000-0000-000000000004', 'Protribes Details Email', 'Notes', NULL, 'Sent', 'Details sent via info@protribes.com.'),
-('doc00000-0000-0000-0000-000000000008', NULL, NULL, NULL, 'Valith Landing Page', 'Other', NULL, 'Draft', 'Public facing landing page.'),
-('doc00000-0000-0000-0000-000000000009', NULL, NULL, NULL, 'Valith OS', 'Other', NULL, 'Draft', 'Internal Command Center system docs.');
+('ad000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'Optimize Digital SOW', 'SOW', NULL, 'Signed', 'Signed SOW for first client.'),
+('ad000000-0000-0000-0000-000000000002', 'b0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'Optimize Digital Invoice', 'Invoice', NULL, 'Sent', 'Invoice sent for payment clearance.'),
+('ad000000-0000-0000-0000-000000000003', NULL, NULL, NULL, 'RFP Intelligence Demo Video', 'Demo', NULL, 'Draft', 'Valith general sales demo video.'),
+('ad000000-0000-0000-0000-000000000004', 'b0000000-0000-0000-0000-000000000007', 'd0000000-0000-0000-0000-000000000007', 'e0000000-0000-0000-0000-000000000005', 'Valith RFP/Tender Intelligence One-page Proposal PDF', 'Proposal', NULL, 'Sent', 'Proposal PDF sent to Sardar.'),
+('ad000000-0000-0000-0000-000000000005', NULL, NULL, NULL, 'Valith RFP/Tender Intelligence Proposal DOCX', 'Proposal', NULL, 'Draft', 'Editable template proposal.'),
+('ad000000-0000-0000-0000-000000000006', 'b0000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000003', 'Hil Cold Email Copy', 'Notes', NULL, 'Sent', 'Cold outbound copy that converted.'),
+('ad000000-0000-0000-0000-000000000007', 'b0000000-0000-0000-0000-000000000006', 'd0000000-0000-0000-0000-000000000006', 'e0000000-0000-0000-0000-000000000004', 'Protribes Details Email', 'Notes', NULL, 'Sent', 'Details sent via info@protribes.com.'),
+('ad000000-0000-0000-0000-000000000008', NULL, NULL, NULL, 'Valith Landing Page', 'Other', NULL, 'Draft', 'Public facing landing page.'),
+('ad000000-0000-0000-0000-000000000009', NULL, NULL, NULL, 'Valith OS', 'Other', NULL, 'Draft', 'Internal Command Center system docs.');
