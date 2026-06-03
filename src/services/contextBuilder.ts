@@ -30,23 +30,55 @@ export async function buildDatabaseContextSummary(): Promise<string> {
       .map((c) => `- ${c.account_name}: ${c.current_balance.toLocaleString()} ${c.currency}`)
       .join('\n');
 
+    // Helpers to resolve lead stages for payments and MRR entries
+    const getLeadStageForPayment = (payment: any) => {
+      if (!payment.lead_id) return null;
+      const lead = leads.find((l) => l.id === payment.lead_id);
+      return lead ? lead.stage : null;
+    };
+
+    const getLeadStageForMRR = (mrr: any) => {
+      if (mrr.deal_id) {
+        const deal = deals.find((d) => d.id === mrr.deal_id);
+        if (deal && deal.lead_id) {
+          const lead = leads.find((l) => l.id === deal.lead_id);
+          return lead ? lead.stage : null;
+        }
+      }
+      if (mrr.organization_id) {
+        const lead = leads.find((l) => l.organization_id === mrr.organization_id);
+        return lead ? lead.stage : null;
+      }
+      return null;
+    };
+
+    const isWarmStage = (stage: string | null) => {
+      if (!stage) return true; // Standalone payments not linked to any pipeline lead are allowed
+      return ['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(stage);
+    };
+
     // 2. REVENUE SUMMARY (Locked, Expected, Received)
     const receivedRevenue = payments
       .filter((p) => p.status === 'Received')
+      .filter((p) => isWarmStage(getLeadStageForPayment(p)))
       .reduce((sum, p) => sum + p.amount, 0);
     const lockedRevenue = payments
       .filter((p) => p.status === 'Locked')
+      .filter((p) => isWarmStage(getLeadStageForPayment(p)))
       .reduce((sum, p) => sum + p.amount, 0);
     const expectedRevenue = payments
       .filter((p) => p.status === 'Expected')
+      .filter((p) => isWarmStage(getLeadStageForPayment(p)))
       .reduce((sum, p) => sum + p.amount, 0);
 
     // 3. MRR SUMMARY
     const activeMRR = mrrEntries
       .filter((m) => m.status === 'Active')
+      .filter((m) => isWarmStage(getLeadStageForMRR(m)))
       .reduce((sum, m) => sum + m.monthly_amount, 0);
     const expectedMRR = mrrEntries
       .filter((m) => m.status === 'Expected')
+      .filter((m) => isWarmStage(getLeadStageForMRR(m)))
       .reduce((sum, m) => sum + m.monthly_amount, 0);
 
     // 4. EXPENSES & BURN

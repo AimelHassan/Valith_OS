@@ -148,21 +148,10 @@ INSERT INTO revenue_payments (
     id, organization_id, lead_id, deal_id, client_name, revenue_type, amount, currency, status, invoice_sent_date, due_date, received_date, notes
 ) VALUES
 ('a2000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'Optimize Digital', 'Project', 150000, 'PKR', 'Locked', '2026-05-22', '2026-05-27', NULL, 'First official signed Valith client. Treat payment as locked/received for planning. Delivery starts after actual funds clear.'),
-('a2000000-0000-0000-0000-000000000002', 'b0000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000002', 'MARCEM', 'Project', 225000, 'PKR', 'Expected', NULL, NULL, NULL, 'Recommended Phase 1 implementation target. Lean fallback is 150000 setup.'),
-('a2000000-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000002', 'MARCEM', 'Retainer', 45000, 'PKR', 'Expected', NULL, NULL, NULL, 'Recommended monthly support/maintenance if Phase 1 closes. Lean fallback 25000/month.'),
-('a2000000-0000-0000-0000-000000000004', 'b0000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000003', 'Franchise Mavericks', 'Project', 2000, 'USD', 'Expected', NULL, NULL, NULL, 'Use 2000 USD as conservative planning placeholder. Realistic range 1000 to 4000 USD depending scope.'),
-('a2000000-0000-0000-0000-000000000005', 'b0000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000003', 'Franchise Mavericks', 'Retainer', 500, 'USD', 'Expected', NULL, NULL, NULL, 'Possible ongoing support/optimization retainer. Realistic range 300 to 750 USD/month.'),
-('a2000000-0000-0000-0000-000000000006', 'b0000000-0000-0000-0000-000000000006', 'd0000000-0000-0000-0000-000000000006', 'e0000000-0000-0000-0000-000000000004', 'Protribes', 'Project', 225000, 'PKR', 'Expected', NULL, NULL, NULL, 'Only if RFP Intelligence call converts.'),
-('a2000000-0000-0000-0000-000000000007', 'b0000000-0000-0000-0000-000000000006', 'd0000000-0000-0000-0000-000000000006', 'e0000000-0000-0000-0000-000000000004', 'Protribes', 'Retainer', 45000, 'PKR', 'Expected', NULL, NULL, NULL, 'Possible monthly support if Phase 1 closes.'),
 ('a2000000-0000-0000-0000-000000000008', 'b0000000-0000-0000-0000-000000000007', 'd0000000-0000-0000-0000-000000000007', 'e0000000-0000-0000-0000-000000000005', 'Sardar / MarCom-related', 'Project', 225000, 'PKR', 'Expected', NULL, NULL, NULL, 'Objection-stage lead due existing provider.');
 
 -- 11. Insert MRR Entries
-INSERT INTO mrr_entries (
-    id, organization_id, deal_id, client_name, service_name, monthly_amount, currency, status, start_date, notes
-) VALUES
-('a3000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000002', 'MARCEM', 'RFP Intelligence support and source monitoring', 45000, 'PKR', 'Expected', NULL, 'Ongoing tender workflow retainer.'),
-('a3000000-0000-0000-0000-000000000002', 'b0000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000003', 'Franchise Mavericks', 'Lead qualification workflow support', 500, 'USD', 'Expected', NULL, 'Ongoing support of qualification integrations.'),
-('a3000000-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-000000000006', 'e0000000-0000-0000-0000-000000000004', 'Protribes', 'RFP Intelligence support and source monitoring', 45000, 'PKR', 'Expected', NULL, 'Retainer for Protribes RFP monitor.');
+-- Omitted: No warm leads currently have active/expected MRR retainers set in seed state.
 
 -- 12. Insert Expenses
 INSERT INTO expenses (

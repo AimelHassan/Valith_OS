@@ -13,6 +13,7 @@ import {
 export const FounderBriefView: React.FC = () => {
   const {
     leads,
+    deals,
     tasks,
     payments,
     expenses,
@@ -33,14 +34,59 @@ export const FounderBriefView: React.FC = () => {
   useEffect(() => {
     const todayStr = new Date().toISOString().split('T')[0];
 
+    // Helpers to resolve lead stages for payments and MRR entries
+    const getLeadStageForPayment = (payment: any) => {
+      if (!payment.lead_id) return null;
+      const lead = leads.find((l) => l.id === payment.lead_id);
+      return lead ? lead.stage : null;
+    };
+
+    const getLeadStageForMRR = (mrr: any) => {
+      if (mrr.deal_id) {
+        const deal = deals.find((d) => d.id === mrr.deal_id);
+        if (deal && deal.lead_id) {
+          const lead = leads.find((l) => l.id === deal.lead_id);
+          return lead ? lead.stage : null;
+        }
+      }
+      if (mrr.organization_id) {
+        const lead = leads.find((l) => l.organization_id === mrr.organization_id);
+        return lead ? lead.stage : null;
+      }
+      return null;
+    };
+
+    const isWarmStage = (stage: string | null) => {
+      if (!stage) return true; // Standalone payments not linked to any pipeline lead are allowed
+      return ['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(stage);
+    };
+
     // Math summaries
     const cashTotal = cashAccounts.reduce((sum, c) => sum + c.current_balance, 0);
-    const receivedRevenue = payments.filter(p => p.status === 'Received').reduce((sum, p) => sum + convertToPKR(p.amount, p.currency), 0);
-    const lockedRevenue = payments.filter(p => p.status === 'Locked').reduce((sum, p) => sum + convertToPKR(p.amount, p.currency), 0);
-    const expectedRevenue = payments.filter(p => p.status === 'Expected').reduce((sum, p) => sum + convertToPKR(p.amount, p.currency), 0);
+    const receivedRevenue = payments
+      .filter(p => p.status === 'Received')
+      .filter(p => isWarmStage(getLeadStageForPayment(p)))
+      .reduce((sum, p) => sum + convertToPKR(p.amount, p.currency), 0);
 
-    const activeMRR = mrrEntries.filter(m => m.status === 'Active').reduce((sum, m) => sum + convertToPKR(m.monthly_amount, m.currency), 0);
-    const expectedMRR = mrrEntries.filter(m => m.status === 'Expected').reduce((sum, m) => sum + convertToPKR(m.monthly_amount, m.currency), 0);
+    const lockedRevenue = payments
+      .filter(p => p.status === 'Locked')
+      .filter(p => isWarmStage(getLeadStageForPayment(p)))
+      .reduce((sum, p) => sum + convertToPKR(p.amount, p.currency), 0);
+
+    const expectedRevenue = payments
+      .filter(p => p.status === 'Expected')
+      .filter(p => isWarmStage(getLeadStageForPayment(p)))
+      .reduce((sum, p) => sum + convertToPKR(p.amount, p.currency), 0);
+
+    const activeMRR = mrrEntries
+      .filter(m => m.status === 'Active')
+      .filter(m => isWarmStage(getLeadStageForMRR(m)))
+      .reduce((sum, m) => sum + convertToPKR(m.monthly_amount, m.currency), 0);
+
+    const expectedMRR = mrrEntries
+      .filter(m => m.status === 'Expected')
+      .filter(m => isWarmStage(getLeadStageForMRR(m)))
+      .reduce((sum, m) => sum + convertToPKR(m.monthly_amount, m.currency), 0);
 
     const monthlyExpenseTotal = expenses
       .filter(e => e.billing_type === 'Monthly' && e.payment_status !== 'Cancelled')
