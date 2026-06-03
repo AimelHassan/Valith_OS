@@ -335,10 +335,12 @@ export const PipelineView: React.FC = () => {
                   <h3 className="text-xs font-bold text-typography uppercase">{stage}</h3>
                   <span className="text-[10px] text-typography-muted">{stageLeads.length} leads</span>
                 </div>
-                <div className="text-right">
-                  <span className="text-xs font-bold text-typography">{stageValue.toLocaleString()}</span>
-                  <span className="block text-[8px] text-typography-light uppercase font-bold">PKR</span>
-                </div>
+                {['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(stage) && (
+                  <div className="text-right">
+                    <span className="text-xs font-bold text-typography">{stageValue.toLocaleString()}</span>
+                    <span className="block text-[8px] text-typography-light uppercase font-bold">PKR</span>
+                  </div>
+                )}
               </div>
 
               {/* Cards Container */}

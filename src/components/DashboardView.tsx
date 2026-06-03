@@ -319,10 +319,12 @@ export const DashboardView: React.FC = () => {
                 <div key={stage} className="space-y-1">
                   <div className="flex justify-between items-center text-xs">
                     <span className="font-semibold text-typography">{stage} ({data.count})</span>
-                    <div className="text-right">
-                      <span className="font-bold text-typography">{data.raw.toLocaleString()} PKR</span>
-                      <span className="text-[10px] text-typography-light ml-2">Weighted: {Math.round(data.weighted).toLocaleString()} PKR</span>
-                    </div>
+                    {['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(stage) && (
+                      <div className="text-right">
+                        <span className="font-bold text-typography">{data.raw.toLocaleString()} PKR</span>
+                        <span className="text-[10px] text-typography-light ml-2">Weighted: {Math.round(data.weighted).toLocaleString()} PKR</span>
+                      </div>
+                    )}
                   </div>
                   <div className="h-1.5 bg-background-soft rounded-full overflow-hidden">
                     <div
