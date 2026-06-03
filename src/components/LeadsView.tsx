@@ -153,6 +153,14 @@ export const LeadsView: React.FC = () => {
     refreshAll();
   };
 
+  const handleDeleteLead = async (id: string) => {
+    if (confirm('Permanently delete this lead and remove all associated history? This cannot be undone.')) {
+      await deleteLead(id);
+      setSelectedLeadId(null);
+      refreshAll();
+    }
+  };
+
   // CSV EXPORT FOR LEADS
   const handleExportCSV = () => {
     let csv = 'Lead Name,Company,Primary Contact,Stage,Status,Priority,Value Estimate,Retainer Estimate,Next Action,Next Follow Up\n';
@@ -401,6 +409,13 @@ export const LeadsView: React.FC = () => {
                 <h2 className="text-sm font-bold text-typography mt-1 leading-snug">{selectedLead.lead_name}</h2>
               </div>
               <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => handleDeleteLead(selectedLead.id)}
+                  className="p-1.5 border border-border rounded hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all text-typography-muted"
+                  title="Delete Lead permanently"
+                >
+                  <Trash2 size={13} />
+                </button>
                 <button
                   onClick={startEdit}
                   className="p-1.5 border border-border rounded hover:bg-background-soft transition-all text-typography-muted hover:text-typography"
@@ -735,12 +750,24 @@ export const LeadsView: React.FC = () => {
                 />
               </div>
 
-              <button
-                type="submit"
-                className="w-full bg-typography text-white py-2 rounded text-xs font-semibold uppercase tracking-wider hover:bg-typography/90 transition-all"
-              >
-                Save Changes
-              </button>
+              <div className="flex space-x-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleDeleteLead(selectedLead.id);
+                    setIsEditing(false);
+                  }}
+                  className="flex-1 border border-red-200 text-red-600 py-2 rounded text-xs font-semibold uppercase tracking-wider hover:bg-red-50 transition-all"
+                >
+                  Delete Lead
+                </button>
+                <button
+                  type="submit"
+                  className="flex-[2] bg-typography text-white py-2 rounded text-xs font-semibold uppercase tracking-wider hover:bg-typography/90 transition-all"
+                >
+                  Save Changes
+                </button>
+              </div>
             </form>
           </div>
         </div>
