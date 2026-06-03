@@ -110,6 +110,13 @@ export const CalendarView: React.FC = () => {
     return words.map((w) => w[0]).join('') + ' Ltd';
   };
 
+  const maskLeadName = (name: string) => {
+    if (!presentationMode) return name;
+    const parts = name.split(' ');
+    if (parts.length === 1) return name[0] + '.';
+    return parts.map((p) => p[0]).join('.') + '.';
+  };
+
   const getSaaSCardTag = (stage: string) => {
     if (['SOW Sent', 'Negotiation'].includes(stage)) return 'Proposal Stage';
     if (stage === 'Closed Won') return 'Client';
@@ -423,7 +430,7 @@ export const CalendarView: React.FC = () => {
                         {company}
                       </h4>
                       <p className="text-[10px] text-typography-muted">
-                        {lead.meeting_type} • <span className="italic">{lead.lead_name}</span>
+                        {lead.meeting_type} • <span className="italic">{maskLeadName(lead.lead_name)}</span>
                       </p>
                     </div>
                   </div>
@@ -462,7 +469,10 @@ export const CalendarView: React.FC = () => {
 
             <span className="text-[9px] font-bold text-aurum uppercase tracking-widest block">Interaction Checkpoint</span>
             <h2 className="text-sm font-bold text-typography mt-1 leading-snug">
-              {selectedLead.meeting_type || 'Client Call'} with {organizations.find(o => o.id === selectedLead.organization_id)?.name}
+              {selectedLead.meeting_type || 'Client Call'} with {(() => {
+                const org = organizations.find(o => o.id === selectedLead.organization_id);
+                return org ? maskCompanyName(org.name) : 'Client';
+              })()}
             </h2>
 
             <div className="my-5 border-t border-b border-border py-4 space-y-3.5 text-xs">
