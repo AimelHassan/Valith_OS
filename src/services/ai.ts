@@ -121,24 +121,24 @@ export const aiService = {
 Use the following existing database data to match contacts, companies, segments, offers, and leads. Do NOT invent new entities if there is a match in this data.
 
 1. Valid Segments (Choose exactly from these):
-${context.segments.map(s => `- ${s.name}`).join('\n')}
+${(context.segments || []).map(s => `- ${s.name}`).join('\n')}
 
 2. Valid Offers (Choose exactly from these):
-${context.offers.map(o => `- ${o.name}`).join('\n')}
+${(context.offers || []).map(o => `- ${o.name}`).join('\n')}
 
 3. Existing Organizations:
-${context.organizations.map(org => `- ${org.name} (ID: ${org.id}, Segment: ${org.segment || 'None'}, Industry: ${org.industry || 'None'}, Location: ${org.location || 'None'})`).join('\n')}
+${(context.organizations || []).map(org => `- ${org.name} (ID: ${org.id}, Segment: ${org.segment || 'None'}, Industry: ${org.industry || 'None'}, Location: ${org.location || 'None'})`).join('\n')}
 
 4. Existing Contacts:
-${context.contacts.map(c => {
-  const org = context.organizations.find(o => o.id === c.organization_id);
+${(context.contacts || []).map(c => {
+  const org = (context.organizations || []).find(o => o.id === c.organization_id);
   return `- ${c.full_name} (ID: ${c.id}, Company: ${org ? org.name : 'Unknown'}, Role: ${c.role_title || 'None'}, Email: ${c.email || 'None'}, Segment: ${org ? org.segment : 'None'})`;
 }).join('\n')}
 
 5. Existing Leads:
 ${(context.leads || []).map(l => {
-  const org = context.organizations.find(o => o.id === l.organization_id);
-  const con = context.contacts.find(c => c.id === l.primary_contact_id);
+  const org = (context.organizations || []).find(o => o.id === l.organization_id);
+  const con = (context.contacts || []).find(c => c.id === l.primary_contact_id);
   return `- ${l.lead_name} (ID: ${l.id}, Company: ${org ? org.name : 'Unknown'}, Contact: ${con ? con.full_name : 'None'}, Stage: ${l.stage}, Status: ${l.status}, Next Action: ${l.next_action || 'None'})`;
 }).join('\n')}
 `;

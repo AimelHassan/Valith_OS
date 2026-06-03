@@ -136,8 +136,17 @@ export const CalendarView: React.FC = () => {
     await saveLead({
       ...lead,
       next_meeting_at: (() => {
-        const d = new Date(quickMeetingAt);
-        return isNaN(d.getTime()) ? undefined : d.toISOString();
+        if (!quickMeetingAt) return undefined;
+        try {
+          const [datePart, timePart] = quickMeetingAt.split('T');
+          if (!datePart || !timePart) return undefined;
+          const [year, month, day] = datePart.split('-').map(Number);
+          const [hours, minutes] = timePart.split(':').map(Number);
+          const d = new Date(year, month - 1, day, hours, minutes);
+          return isNaN(d.getTime()) ? undefined : d.toISOString();
+        } catch {
+          return undefined;
+        }
       })(),
       meeting_type: quickMeetingType,
       meeting_status: quickMeetingStatus

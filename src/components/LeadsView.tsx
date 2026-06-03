@@ -145,8 +145,16 @@ export const LeadsView: React.FC = () => {
       notes: editNotes,
       next_meeting_at: (() => {
         if (!editNextMeetingAt) return null;
-        const d = new Date(editNextMeetingAt);
-        return isNaN(d.getTime()) ? null : d.toISOString();
+        try {
+          const [datePart, timePart] = editNextMeetingAt.split('T');
+          if (!datePart || !timePart) return null;
+          const [year, month, day] = datePart.split('-').map(Number);
+          const [hours, minutes] = timePart.split(':').map(Number);
+          const d = new Date(year, month - 1, day, hours, minutes);
+          return isNaN(d.getTime()) ? null : d.toISOString();
+        } catch {
+          return null;
+        }
       })(),
       meeting_type: editNextMeetingAt ? editMeetingType : null,
       meeting_status: editNextMeetingAt ? editMeetingStatus : null
