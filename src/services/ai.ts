@@ -5,12 +5,14 @@ export type AIProvider = 'Gemini' | 'OpenAI' | 'Claude' | 'Mock';
 
 export interface ParsedCaptureResult {
   organization?: {
+    matched_organization_id?: string;
     name: string;
     website?: string;
     industry?: string;
     location?: string;
   };
   contact?: {
+    matched_contact_id?: string;
     full_name: string;
     role_title?: string;
     email?: string;
@@ -18,6 +20,7 @@ export interface ParsedCaptureResult {
     relationship_strength?: 'Cold' | 'Warm' | 'Strong' | 'Strategic';
   };
   lead?: {
+    matched_lead_id?: string;
     lead_name: string;
     source_channel: 'LinkedIn' | 'WhatsApp' | 'Email' | 'Referral' | 'Website' | 'Event' | 'Manual' | 'Other';
     segment?: string;
@@ -41,6 +44,7 @@ export interface ExistingContext {
   contacts: { id: string; full_name: string; role_title?: string; organization_id?: string; email?: string }[];
   offers: { id: string; name: string }[];
   segments: { id: string; name: string }[];
+  leads?: { id: string; lead_name: string; stage: string; status: string; organization_id?: string; primary_contact_id?: string; next_action?: string; pain_points?: string }[];
 }
 
 // Helper to get active API Key from Settings or Environment
@@ -114,7 +118,7 @@ export const aiService = {
     if (context) {
       contextText = `
 ### CRM DATA CONTEXT FOR ENTITY RESOLUTION AND MATCHING:
-Use the following existing database data to match contacts, companies, segments, and offers. Do NOT invent new entities if there is a match in this data.
+Use the following existing database data to match contacts, companies, segments, offers, and leads. Do NOT invent new entities if there is a match in this data.
 
 1. Valid Segments (Choose exactly from these):
 ${context.segments.map(s => `- ${s.name}`).join('\n')}
@@ -123,12 +127,19 @@ ${context.segments.map(s => `- ${s.name}`).join('\n')}
 ${context.offers.map(o => `- ${o.name}`).join('\n')}
 
 3. Existing Organizations:
-${context.organizations.map(org => `- ${org.name} (Segment: ${org.segment || 'None'}, Industry: ${org.industry || 'None'}, Location: ${org.location || 'None'})`).join('\n')}
+${context.organizations.map(org => `- ${org.name} (ID: ${org.id}, Segment: ${org.segment || 'None'}, Industry: ${org.industry || 'None'}, Location: ${org.location || 'None'})`).join('\n')}
 
 4. Existing Contacts:
 ${context.contacts.map(c => {
   const org = context.organizations.find(o => o.id === c.organization_id);
-  return `- ${c.full_name} (Company: ${org ? org.name : 'Unknown'}, Role: ${c.role_title || 'None'}, Email: ${c.email || 'None'}, Segment: ${org ? org.segment : 'None'})`;
+  return `- ${c.full_name} (ID: ${c.id}, Company: ${org ? org.name : 'Unknown'}, Role: ${c.role_title || 'None'}, Email: ${c.email || 'None'}, Segment: ${org ? org.segment : 'None'})`;
+}).join('\n')}
+
+5. Existing Leads:
+${(context.leads || []).map(l => {
+  const org = context.organizations.find(o => o.id === l.organization_id);
+  const con = context.contacts.find(c => c.id === l.primary_contact_id);
+  return `- ${l.lead_name} (ID: ${l.id}, Company: ${org ? org.name : 'Unknown'}, Contact: ${con ? con.full_name : 'None'}, Stage: ${l.stage}, Status: ${l.status}, Next Action: ${l.next_action || 'None'})`;
 }).join('\n')}
 `;
     }
@@ -138,12 +149,14 @@ Parse the raw outreach message, meeting transcript snippet, or WhatsApp conversa
 Return ONLY valid JSON matching this schema:
 {
   "organization": {
+    "matched_organization_id": "UUID if matching an existing organization from context, otherwise null/empty",
     "name": "Company Name",
     "website": "URL if found",
     "industry": "e.g. Technology, Logistics, PR, legal",
     "location": "City or Country"
   },
   "contact": {
+    "matched_contact_id": "UUID if matching an existing contact from context, otherwise null/empty",
     "full_name": "Person Name",
     "role_title": "Job title",
     "email": "Email address",
@@ -151,10 +164,11 @@ Return ONLY valid JSON matching this schema:
     "relationship_strength": "Cold", "Warm", "Strong", or "Strategic"
   },
   "lead": {
+    "matched_lead_id": "UUID if matching an existing lead from context, otherwise null/empty",
     "lead_name": "A descriptive title for this lead",
     "source_channel": "LinkedIn", "WhatsApp", "Email", "Referral", "Website", "Event", "Manual", or "Other",
-    "segment": "A1 Whale", "A2 RFP Active", "A3 Smaller RFP Active", "A4 Workflow Fit", "Foreign Partner", "WhatsApp Lead", "Strategic", or "Other",
-    "offer_angle": "RFP Intelligence", "WhatsApp Workflow Assistant", "AI Workflow Audit", "Inbox Automation", "Partner/Implementation", or "Other",
+    "segment": "Choose from valid segments list in context",
+    "offer_angle": "Choose from valid offers list in context",
     "stage": "New", "Connected", "Messaged", "Replied", "Demo Sent", "Meeting Scheduled", "SOW Sent", "Negotiation", "Closed Won", "Closed Lost", "Cold", or "Archived",
     "deal_value_estimate": 0, // Number representing local currency PKR or USD value. Default to 0. ONLY set to a non-zero value if explicitly stated in raw text. Do NOT guess or use default template numbers.
     "monthly_retainer_estimate": 0, // Default to 0. ONLY set to a non-zero value if explicitly stated in raw text.
@@ -172,10 +186,11 @@ Return ONLY valid JSON matching this schema:
 ${contextText}
 
 CRITICAL PARSING RULES:
-1. Entity Resolution: Compare the input text with the "Existing Contacts" and "Existing Organizations" list above. If the text mentions a person (e.g. "hassan zuberi") or organization that matches or closely matches an existing record, resolve it to their EXACT full name, company name, segment, and metadata. Do NOT create a duplicate or guess default categories.
-2. Category Selection: The "segment" MUST be chosen from the provided valid segments list if possible. The "offer_angle" MUST be chosen from the provided valid offers list. If you resolve to an existing contact/organization, default to their existing segment and offers unless the text specifies a new project/angle.
+1. Entity Resolution: Check "Existing Leads", "Existing Contacts", and "Existing Organizations" list above. If the input text is a follow-up, status update, or conversation about a person, company, or lead already in the database, resolve and output their exact "matched_organization_id", "matched_contact_id", or "matched_lead_id". Do NOT invent new duplicates.
+2. Category Selection: The "segment" MUST be chosen from the provided valid segments list if possible. The "offer_angle" MUST be chosen from the provided valid offers list. If you resolve to an existing lead/contact/organization, default to their existing segment and offers unless the text specifies a new project/angle.
 3. Deal Value Estimates: Unless a specific price, fee, or estimate is explicitly written in the input text, set "deal_value_estimate" and "monthly_retainer_estimate" to 0. Do NOT use fake placeholder numbers (e.g., do not default to 150000 or 45000).
-4. Next Action: If the text indicates an action has occurred (e.g., "follow up sent"), formulate a logical next action like "Wait for response" or "Follow up in 3 days".`;
+4. Stage Updates: If the text indicates progress (e.g., "proposal sent" or "meeting scheduled"), update the stage to the corresponding value (e.g., "SOW Sent" or "Meeting Scheduled"). If no update is mentioned, keep the existing lead's stage.
+5. Next Action: If the text indicates an action has occurred (e.g., "follow up sent"), formulate a logical next action like "Wait for response" or "Follow up in 3 days".`;
 
     const prompt = `Parse the following text:
 ---

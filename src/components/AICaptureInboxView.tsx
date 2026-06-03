@@ -19,6 +19,7 @@ export const AICaptureInboxView: React.FC = () => {
   const {
     organizations,
     contacts,
+    leads,
     saveLead,
     saveTask,
     refreshAll,
@@ -50,11 +51,13 @@ export const AICaptureInboxView: React.FC = () => {
   const [orgWeb, setOrgWeb] = useState('');
   const [orgInd, setOrgInd] = useState('');
   const [orgLoc, setOrgLoc] = useState('');
+  const [matchedOrgId, setMatchedOrgId] = useState<string | undefined>(undefined);
 
   const [conName, setConName] = useState('');
   const [conTitle, setConTitle] = useState('');
   const [conEmail, setConEmail] = useState('');
   const [conWhatsApp, setConWhatsApp] = useState('');
+  const [matchedContactId, setMatchedContactId] = useState<string | undefined>(undefined);
 
   const [leadName, setLeadName] = useState('');
   const [leadAngle, setLeadAngle] = useState('');
@@ -63,6 +66,8 @@ export const AICaptureInboxView: React.FC = () => {
   const [leadRet, setLeadRet] = useState(0);
   const [leadAction, setLeadAction] = useState('');
   const [leadPains, setLeadPains] = useState('');
+  const [leadStage, setLeadStage] = useState('New');
+  const [matchedLeadId, setMatchedLeadId] = useState<string | undefined>(undefined);
 
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDue, setTaskDue] = useState('');
@@ -79,7 +84,8 @@ export const AICaptureInboxView: React.FC = () => {
         organizations,
         contacts,
         offers,
-        segments: dbSegments
+        segments: dbSegments,
+        leads
       });
       setParsedData(parsed);
 
@@ -88,11 +94,13 @@ export const AICaptureInboxView: React.FC = () => {
       setOrgWeb(parsed.organization?.website || '');
       setOrgInd(parsed.organization?.industry || 'Technology');
       setOrgLoc(parsed.organization?.location || 'Pakistan');
+      setMatchedOrgId(parsed.organization?.matched_organization_id || undefined);
 
       setConName(parsed.contact?.full_name || '');
       setConTitle(parsed.contact?.role_title || 'Executive');
       setConEmail(parsed.contact?.email || '');
       setConWhatsApp(parsed.contact?.whatsapp || '');
+      setMatchedContactId(parsed.contact?.matched_contact_id || undefined);
 
       setLeadName(parsed.lead?.lead_name || 'New Lead from AI Capture');
       setLeadAngle(parsed.lead?.offer_angle || 'RFP Intelligence');
@@ -101,6 +109,8 @@ export const AICaptureInboxView: React.FC = () => {
       setLeadRet(parsed.lead?.monthly_retainer_estimate ?? 0);
       setLeadAction(parsed.lead?.next_action || 'Send follow-up details');
       setLeadPains(parsed.lead?.pain_points || '');
+      setLeadStage(parsed.lead?.stage || 'New');
+      setMatchedLeadId(parsed.lead?.matched_lead_id || undefined);
       
       setTaskTitle(parsed.task?.title || '');
       setTaskDue(parsed.task?.due_date || '');
@@ -118,8 +128,9 @@ export const AICaptureInboxView: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // 1. Create Org
+      // 1. Create or Update Org
       const org = await dbService.saveOrganization({
+        id: matchedOrgId || undefined,
         name: orgName,
         website: orgWeb || undefined,
         industry: orgInd || undefined,
@@ -128,10 +139,11 @@ export const AICaptureInboxView: React.FC = () => {
         source_channel: source
       });
 
-      // 2. Create Contact if provided
+      // 2. Create or Update Contact if provided
       let contactId = undefined;
       if (conName.trim()) {
         const contact = await dbService.saveContact({
+          id: matchedContactId || undefined,
           organization_id: org.id,
           full_name: conName,
           role_title: conTitle || undefined,
@@ -143,20 +155,25 @@ export const AICaptureInboxView: React.FC = () => {
         contactId = contact.id;
       }
 
-      // 3. Create Lead
+      // 3. Create or Update Lead
+      const existingLead = matchedLeadId ? leads.find(l => l.id === matchedLeadId) : null;
+      const isValueAllowed = ['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(leadStage);
+
       const lead = await saveLead({
+        ...existingLead,
+        id: matchedLeadId || undefined,
         organization_id: org.id,
         primary_contact_id: contactId,
         lead_name: leadName,
         source_channel: source as any,
         segment: leadSegment,
         offer_angle: leadAngle,
-        stage: 'New',
-        status: 'Active',
-        priority: 'Medium',
-        probability_percent: 10,
-        deal_value_estimate: 0,
-        monthly_retainer_estimate: 0,
+        stage: leadStage as any,
+        status: (leadStage === 'Closed Won' || leadStage === 'Closed Lost') ? 'Closed' : (existingLead?.status || 'Active'),
+        priority: existingLead?.priority || 'Medium',
+        probability_percent: existingLead?.probability_percent || 10,
+        deal_value_estimate: isValueAllowed ? Number(leadVal) : 0,
+        monthly_retainer_estimate: isValueAllowed ? Number(leadRet) : 0,
         next_action: leadAction,
         pain_points: leadPains
       });
@@ -265,9 +282,16 @@ export const AICaptureInboxView: React.FC = () => {
             <div className="space-y-4 text-xs max-h-[480px] overflow-y-auto pr-1">
               {/* Organization Entity */}
               <div className="border border-border p-3.5 rounded-lg space-y-3">
-                <div className="flex items-center space-x-2 font-bold text-typography uppercase text-[9px] text-aurum-dark">
-                  <Users size={12} />
-                  <span>Organization</span>
+                <div className="flex justify-between items-center mb-1">
+                  <div className="flex items-center space-x-2 font-bold text-typography uppercase text-[9px] text-aurum-dark">
+                    <Users size={12} />
+                    <span>Organization</span>
+                  </div>
+                  {matchedOrgId && (
+                    <span className="text-[8px] bg-aurum-glow text-aurum-dark uppercase font-bold px-2 py-0.5 rounded">
+                      Linked to Org: {orgName}
+                    </span>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -293,9 +317,16 @@ export const AICaptureInboxView: React.FC = () => {
 
               {/* Contact Entity */}
               <div className="border border-border p-3.5 rounded-lg space-y-3">
-                <div className="flex items-center space-x-2 font-bold text-typography uppercase text-[9px] text-aurum-dark">
-                  <User size={12} />
-                  <span>Contact Profile</span>
+                <div className="flex justify-between items-center mb-1">
+                  <div className="flex items-center space-x-2 font-bold text-typography uppercase text-[9px] text-aurum-dark">
+                    <User size={12} />
+                    <span>Contact Profile</span>
+                  </div>
+                  {matchedContactId && (
+                    <span className="text-[8px] bg-aurum-glow text-aurum-dark uppercase font-bold px-2 py-0.5 rounded">
+                      Linked to Contact
+                    </span>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -321,9 +352,16 @@ export const AICaptureInboxView: React.FC = () => {
 
               {/* Lead Details */}
               <div className="border border-border p-3.5 rounded-lg space-y-3">
-                <div className="flex items-center space-x-2 font-bold text-typography uppercase text-[9px] text-aurum-dark">
-                  <Briefcase size={12} />
-                  <span>Lead Pipeline record</span>
+                <div className="flex justify-between items-center mb-1">
+                  <div className="flex items-center space-x-2 font-bold text-typography uppercase text-[9px] text-aurum-dark">
+                    <Briefcase size={12} />
+                    <span>Lead Pipeline record</span>
+                  </div>
+                  {matchedLeadId && (
+                    <span className="text-[8px] bg-aurum-glow text-aurum-dark uppercase font-bold px-2 py-0.5 rounded">
+                      Updating Lead
+                    </span>
+                  )}
                 </div>
                 <div>
                   <label className="block text-[9px] text-typography-muted mb-0.5 font-semibold uppercase">Lead Name</label>
@@ -346,10 +384,43 @@ export const AICaptureInboxView: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-[9px] text-typography-muted mb-0.5 font-semibold uppercase">Next Action</label>
-                  <input type="text" value={leadAction} onChange={e => setLeadAction(e.target.value)} className="w-full text-xs p-1" />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[9px] text-typography-muted mb-0.5 font-semibold uppercase">Stage</label>
+                    <select value={leadStage} onChange={e => setLeadStage(e.target.value)} className="w-full text-xs p-1">
+                      <option value="New">New</option>
+                      <option value="Connected">Connected</option>
+                      <option value="Messaged">Messaged</option>
+                      <option value="Replied">Replied</option>
+                      <option value="Demo Sent">Demo Sent</option>
+                      <option value="Meeting Scheduled">Meeting Scheduled</option>
+                      <option value="SOW Sent">SOW Sent</option>
+                      <option value="Negotiation">Negotiation</option>
+                      <option value="Closed Won">Closed Won</option>
+                      <option value="Closed Lost">Closed Lost</option>
+                      <option value="Cold">Cold</option>
+                      <option value="Archived">Archived</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[9px] text-typography-muted mb-0.5 font-semibold uppercase">Next Action</label>
+                    <input type="text" value={leadAction} onChange={e => setLeadAction(e.target.value)} className="w-full text-xs p-1" />
+                  </div>
                 </div>
+
+                {['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(leadStage) && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[9px] text-typography-muted mb-0.5 font-semibold uppercase">Setup Value (PKR)</label>
+                      <input type="number" value={leadVal} onChange={e => setLeadVal(Number(e.target.value))} className="w-full text-xs p-1" />
+                    </div>
+                    <div>
+                      <label className="block text-[9px] text-typography-muted mb-0.5 font-semibold uppercase">Retainer (PKR)</label>
+                      <input type="number" value={leadRet} onChange={e => setLeadRet(Number(e.target.value))} className="w-full text-xs p-1" />
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-[9px] text-typography-muted mb-0.5 font-semibold uppercase">Frictions/Pain Points</label>
                   <textarea rows={2} value={leadPains} onChange={e => setLeadPains(e.target.value)} className="w-full text-xs p-1" />
