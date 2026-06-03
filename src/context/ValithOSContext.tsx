@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { dbService } from '../services/db';
-import { supabase, isSupabaseConfigured } from '../supabaseClient';
+import { supabase } from '../supabaseClient';
 import {
   Organization,
   Contact,
@@ -129,27 +129,19 @@ export const ValithOSProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Authentication & Session
   useEffect(() => {
-    if (isSupabaseConfigured && supabase) {
-      // Get initial session
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        setUser(session?.user ?? null);
-      });
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
 
-      // Listen for auth changes
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-        setUser(session?.user ?? null);
-      });
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
 
-      return () => {
-        subscription.unsubscribe();
-      };
-    } else {
-      // Mock single-user founder local session
-      const mockSession = localStorage.getItem('vos_mock_session');
-      if (mockSession) {
-        setUser(JSON.parse(mockSession));
-      }
-    }
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Fetch all database records
@@ -211,7 +203,7 @@ export const ValithOSProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-  // Run on user sign in or mock session load
+  // Run on user sign in
   useEffect(() => {
     if (user) {
       refreshAll();
@@ -222,12 +214,7 @@ export const ValithOSProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Sign out helper
   const signOut = async () => {
-    if (isSupabaseConfigured && supabase) {
-      await supabase.auth.signOut();
-    } else {
-      localStorage.removeItem('vos_mock_session');
-      setUser(null);
-    }
+    await supabase.auth.signOut();
   };
 
   // ----------------------------------------------------

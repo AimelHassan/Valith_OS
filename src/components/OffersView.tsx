@@ -77,7 +77,11 @@ export const OffersView: React.FC = () => {
   const getOfferStats = (offerName: string) => {
     const offerLeads = leads.filter(l => l.offer_angle === offerName);
     const leadCount = offerLeads.length;
-    const totalPipelineValue = offerLeads.reduce((sum, l) => sum + (l.deal_value_estimate || 0), 0);
+    const valueAllowedStages = ['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'];
+    const totalPipelineValue = offerLeads.reduce((sum, l) => {
+      const isAllowed = valueAllowedStages.includes(l.stage);
+      return sum + (isAllowed ? (l.deal_value_estimate || 0) : 0);
+    }, 0);
     return { leadCount, totalPipelineValue };
   };
 

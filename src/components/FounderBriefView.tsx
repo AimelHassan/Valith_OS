@@ -104,7 +104,11 @@ Generated: ${new Date().toLocaleDateString()}
 
 ## 3. High-Priority CRM Pipeline
 ### Hot Leads (Priority High)
-${hotLeads.length > 0 ? hotLeads.map(l => `- **${l.lead_name}** | Est Setup: ${l.deal_value_estimate.toLocaleString()} PKR | Next: ${l.next_action || 'N/A'}`).join('\n') : '- None'}
+${hotLeads.length > 0 ? hotLeads.map(l => {
+  const allowed = ['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(l.stage);
+  const estStr = allowed ? `${l.deal_value_estimate.toLocaleString()} PKR` : '—';
+  return `- **${l.lead_name}** | Est Setup: ${estStr} | Next: ${l.next_action || 'N/A'}`;
+}).join('\n') : '- None'}
 
 ### Waiting on Reply
 ${waitingLeads.length > 0 ? waitingLeads.map(l => `- **${l.lead_name}** | Next action: ${l.next_action || 'N/A'}`).join('\n') : '- None'}

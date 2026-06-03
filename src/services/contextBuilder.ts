@@ -74,7 +74,11 @@ export async function buildDatabaseContextSummary(): Promise<string> {
 
     const hotLeads = activeLeads
       .filter((l) => l.priority === 'High')
-      .map((l) => `- ${l.lead_name} (Est: ${l.deal_value_estimate.toLocaleString()} PKR, Stage: ${l.stage}, Next Action: ${l.next_action || 'None'})`);
+      .map((l) => {
+        const isAllowed = ['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(l.stage);
+        const estStr = isAllowed ? `${l.deal_value_estimate.toLocaleString()} PKR` : '—';
+        return `- ${l.lead_name} (Est: ${estStr}, Stage: ${l.stage}, Next Action: ${l.next_action || 'None'})`;
+      });
 
     const waitingLeads = leads
       .filter((l) => l.status === 'Waiting')

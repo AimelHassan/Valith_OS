@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useValithOS } from '../context/ValithOSContext';
-import { isSupabaseConfigured } from '../supabaseClient';
 import {
   Settings,
   Key,
@@ -167,22 +166,11 @@ export const SettingsView: React.FC = () => {
 
           <div className="space-y-3.5 text-xs">
             <div className="flex items-center space-x-2">
-              {isSupabaseConfigured ? (
-                <>
-                  <CheckCircle size={16} className="text-aurum shrink-0" />
-                  <span className="font-bold text-typography leading-none">SUPABASE SERVER ONLINE</span>
-                </>
-              ) : (
-                <>
-                  <AlertTriangle size={16} className="text-red-500 shrink-0" />
-                  <span className="font-bold text-red-500 leading-none">SUPABASE OFFLINE — LOCAL SANDBOX ACTIVE</span>
-                </>
-              )}
+              <CheckCircle size={16} className="text-aurum shrink-0" />
+              <span className="font-bold text-typography leading-none">SUPABASE SERVER ONLINE</span>
             </div>
             <p className="text-typography-muted leading-relaxed text-[11px]">
-              {isSupabaseConfigured
-                ? "The workspace is linked to your Supabase Postgres database. All operations read and write to your cloud host."
-                : "No cloud configuration keys found in the environment variables (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY). All data operations are compiled and persisted in your local browser sandbox."}
+              The workspace is linked to your Supabase Postgres database. All operations read and write to your cloud host.
             </p>
           </div>
         </div>

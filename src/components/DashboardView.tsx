@@ -107,9 +107,10 @@ export const DashboardView: React.FC = () => {
 
   const pipelineByStage = pipelineStages.reduce((acc, stage) => {
     const stageLeads = leads.filter(l => l.stage === stage);
-    const rawVal = stageLeads.reduce((sum, l) => sum + l.deal_value_estimate, 0);
+    const isValAllowed = ['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(stage);
+    const rawVal = isValAllowed ? stageLeads.reduce((sum, l) => sum + l.deal_value_estimate, 0) : 0;
     const weight = stageWeights[stage] || 0;
-    const weightedVal = stageLeads.reduce((sum, l) => sum + (l.deal_value_estimate * weight) / 100, 0);
+    const weightedVal = isValAllowed ? stageLeads.reduce((sum, l) => sum + (l.deal_value_estimate * weight) / 100, 0) : 0;
     
     acc[stage] = { count: stageLeads.length, raw: rawVal, weighted: weightedVal };
     return acc;
@@ -339,7 +340,11 @@ export const DashboardView: React.FC = () => {
                 <div key={l.id} className="p-3 bg-background-soft rounded border-l-2 border-aurum space-y-1">
                   <div className="flex justify-between items-start">
                     <span className="text-xs font-bold text-typography leading-tight">{l.lead_name}</span>
-                    <span className="text-[10px] font-bold text-typography-muted">{l.deal_value_estimate.toLocaleString()} PKR</span>
+                    <span className="text-[10px] font-bold text-typography-muted">
+                      {['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(l.stage)
+                        ? `${l.deal_value_estimate.toLocaleString()} PKR`
+                        : '—'}
+                    </span>
                   </div>
                   <p className="text-[10px] text-typography-muted">Stage: {l.stage} | Next action: {l.next_action || 'None'}</p>
                 </div>

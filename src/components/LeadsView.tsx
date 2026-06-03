@@ -165,7 +165,10 @@ export const LeadsView: React.FC = () => {
         return `"${str.replace(/"/g, '""')}"`;
       };
 
-      csv += `${clean(l.lead_name)},${clean(org?.name)},${clean(contact?.full_name)},${l.stage},${l.status},${l.priority},${l.deal_value_estimate},${l.monthly_retainer_estimate},${clean(l.next_action)},${clean(l.next_follow_up_date)}\n`;
+      const valAllowed = ['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(l.stage);
+      const valEst = valAllowed ? l.deal_value_estimate : 0;
+      const retEst = valAllowed ? l.monthly_retainer_estimate : 0;
+      csv += `${clean(l.lead_name)},${clean(org?.name)},${clean(contact?.full_name)},${l.stage},${l.status},${l.priority},${valEst},${retEst},${clean(l.next_action)},${clean(l.next_follow_up_date)}\n`;
     });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -358,7 +361,9 @@ export const LeadsView: React.FC = () => {
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-right font-bold text-typography">
-                        {lead.deal_value_estimate.toLocaleString()} PKR
+                        {['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(lead.stage)
+                          ? `${lead.deal_value_estimate.toLocaleString()} PKR`
+                          : '—'}
                       </td>
                       <td className="py-3.5 px-4">
                         <span
@@ -415,11 +420,19 @@ export const LeadsView: React.FC = () => {
             <div className="grid grid-cols-2 gap-4 text-xs">
               <div className="p-3 bg-background-soft rounded">
                 <span className="block text-[8px] uppercase tracking-wider text-typography-light font-bold">Estimated Setup Value</span>
-                <span className="text-sm font-bold text-typography mt-0.5 block">{selectedLead.deal_value_estimate.toLocaleString()} PKR</span>
+                <span className="text-sm font-bold text-typography mt-0.5 block">
+                  {['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(selectedLead.stage)
+                    ? `${selectedLead.deal_value_estimate.toLocaleString()} PKR`
+                    : '—'}
+                </span>
               </div>
               <div className="p-3 bg-background-soft rounded">
                 <span className="block text-[8px] uppercase tracking-wider text-typography-light font-bold">Monthly Retainer</span>
-                <span className="text-sm font-bold text-typography mt-0.5 block">{selectedLead.monthly_retainer_estimate.toLocaleString()} PKR</span>
+                <span className="text-sm font-bold text-typography mt-0.5 block">
+                  {['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(selectedLead.stage)
+                    ? `${selectedLead.monthly_retainer_estimate.toLocaleString()} PKR`
+                    : '—'}
+                </span>
               </div>
             </div>
 

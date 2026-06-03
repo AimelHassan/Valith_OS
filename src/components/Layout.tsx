@@ -25,7 +25,7 @@ import {
   Tag,
   Layers
 } from 'lucide-react';
-import { isSupabaseConfigured } from '../supabaseClient';
+
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -252,7 +252,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="overflow-hidden">
               <span className="block text-xs font-semibold text-typography truncate">{user?.email || 'Founder Sandbox'}</span>
               <span className="block text-[9px] text-typography-light font-sans tracking-wider uppercase">
-                {isSupabaseConfigured ? 'Supabase Live' : 'Offline Sandbox'}
+                Supabase Live
               </span>
             </div>
           </div>

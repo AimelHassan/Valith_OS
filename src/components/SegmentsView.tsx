@@ -79,7 +79,11 @@ export const SegmentsView: React.FC = () => {
     const segmentLeads = leads.filter(l => l.segment === segmentName);
     const leadCount = segmentLeads.length;
     const orgCount = organizations.filter(o => o.segment === segmentName).length;
-    const totalPipelineValue = segmentLeads.reduce((sum, l) => sum + (l.deal_value_estimate || 0), 0);
+    const valueAllowedStages = ['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'];
+    const totalPipelineValue = segmentLeads.reduce((sum, l) => {
+      const isAllowed = valueAllowedStages.includes(l.stage);
+      return sum + (isAllowed ? (l.deal_value_estimate || 0) : 0);
+    }, 0);
     return { leadCount, orgCount, totalPipelineValue };
   };
 

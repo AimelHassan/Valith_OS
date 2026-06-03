@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase, isSupabaseConfigured } from '../supabaseClient';
+import { supabase } from '../supabaseClient';
 
 export const AuthView: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -12,32 +12,14 @@ export const AuthView: React.FC = () => {
     setLoading(true);
     setMessage(null);
 
-    if (isSupabaseConfigured && supabase) {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) {
-        setMessage(`Error: ${error.message}`);
-      }
-      setLoading(false);
-    } else {
-      // Mock local sign in
-      if (email === 'founder@valith.tech' && password === 'valithos') {
-        const mockUser = { id: 'founder-local', email: 'founder@valith.tech', role: 'founder' };
-        localStorage.setItem('vos_mock_session', JSON.stringify(mockUser));
-        window.location.reload();
-      } else {
-        setMessage('Offline Credentials: Use founder@valith.tech / valithos');
-      }
-      setLoading(false);
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) {
+      setMessage(`Error: ${error.message}`);
     }
-  };
-
-  const handleOfflineBypass = () => {
-    const mockUser = { id: 'founder-local', email: 'founder@valith.tech', role: 'founder' };
-    localStorage.setItem('vos_mock_session', JSON.stringify(mockUser));
-    window.location.reload();
+    setLoading(false);
   };
 
   return (
@@ -96,17 +78,9 @@ export const AuthView: React.FC = () => {
         </form>
 
         <div className="mt-8 border-t border-border pt-6 text-center">
-          <p className="text-xs text-typography-light mb-3">
-            {!isSupabaseConfigured
-              ? "Supabase integration not detected. Operating in local sandbox."
-              : "Supabase connection online. Login with founder credentials."}
+          <p className="text-xs text-typography-light">
+            Login with your founder credentials to access Valith OS.
           </p>
-          <button
-            onClick={handleOfflineBypass}
-            className="text-xs font-medium text-aurum hover:text-aurum-dark underline transition-all focus:outline-none"
-          >
-            Proceed in Offline Sandbox Mode
-          </button>
         </div>
       </div>
     </div>

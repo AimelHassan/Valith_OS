@@ -317,7 +317,10 @@ export const PipelineView: React.FC = () => {
       <div className="flex space-x-4 overflow-x-auto pb-6 min-h-[500px]">
         {STAGES.map((stage) => {
           const stageLeads = filteredLeads.filter((l) => l.stage === stage);
-          const stageValue = stageLeads.reduce((sum, l) => sum + l.deal_value_estimate, 0);
+          const valueAllowedStages = ['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'];
+          const stageValue = valueAllowedStages.includes(stage)
+            ? stageLeads.reduce((sum: number, l) => sum + l.deal_value_estimate, 0)
+            : 0;
 
           return (
             <div
@@ -392,7 +395,9 @@ export const PipelineView: React.FC = () => {
                             {lead.offer_angle}
                           </span>
                           <span className="font-bold text-typography">
-                            {lead.deal_value_estimate.toLocaleString()} PKR
+                            {['SOW Sent', 'Negotiation', 'Closed Won', 'Closed Lost'].includes(lead.stage)
+                              ? `${lead.deal_value_estimate.toLocaleString()} PKR`
+                              : '—'}
                           </span>
                         </div>
 
