@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useValithOS } from '../context/ValithOSContext';
 import { aiService, ParsedCaptureResult } from '../services/ai';
 import { dbService } from '../services/db';
@@ -26,9 +26,19 @@ export const AICaptureInboxView: React.FC = () => {
     segments: dbSegments
   } = useValithOS();
 
-  const [rawText, setRawText] = useState('');
-  const [source, setSource] = useState<'WhatsApp' | 'LinkedIn' | 'Email' | 'Call' | 'Meeting' | 'Manual Note'>('LinkedIn');
+  const [rawText, setRawText] = useState(() => localStorage.getItem('vos_capture_raw_text') || '');
+  const [source, setSource] = useState<'WhatsApp' | 'LinkedIn' | 'Email' | 'Call' | 'Meeting' | 'Manual Note'>(() => {
+    return (localStorage.getItem('vos_capture_source') as any) || 'LinkedIn';
+  });
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('vos_capture_raw_text', rawText);
+  }, [rawText]);
+
+  useEffect(() => {
+    localStorage.setItem('vos_capture_source', source);
+  }, [source]);
   
   // Parsed results
   const [parsedData, setParsedData] = useState<ParsedCaptureResult | null>(null);
