@@ -463,5 +463,12 @@ export const dbService = {
   async deleteSegment(id: string): Promise<void> {
     const { error } = await supabase.from('segments').delete().eq('id', id);
     if (error) throw error;
+  },
+
+  // Client Portal secure RPC query
+  async getClientPortalData(token: string): Promise<any> {
+    const { data, error } = await supabase.rpc('get_client_portal_data', { p_token: token });
+    if (error) throw error;
+    return data;
   }
 };

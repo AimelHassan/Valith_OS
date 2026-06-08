@@ -18,9 +18,18 @@ import { OffersView } from './components/OffersView';
 import { SegmentsView } from './components/SegmentsView';
 import { SettingsView } from './components/SettingsView';
 import { CalendarView } from './components/CalendarView';
+import { ClientPortalView } from './components/ClientPortalView';
 
 const AppContent: React.FC = () => {
   const { user, activeTab, isLoading, errorMsg, leads } = useValithOS();
+
+  // Check if client portal is requested
+  const queryParams = new URLSearchParams(window.location.search);
+  const portalToken = queryParams.get('portal') || queryParams.get('client');
+
+  if (portalToken) {
+    return <ClientPortalView token={portalToken} />;
+  }
 
   if (isLoading && leads.length === 0) {
     return (

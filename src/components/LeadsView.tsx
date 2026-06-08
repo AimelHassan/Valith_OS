@@ -19,7 +19,9 @@ import {
   X,
   FileSpreadsheet,
   ArrowDownToLine,
-  Upload
+  Upload,
+  Copy,
+  Check
 } from 'lucide-react';
 
 export const LeadsView: React.FC = () => {
@@ -71,6 +73,7 @@ export const LeadsView: React.FC = () => {
   const [editNextMeetingAt, setEditNextMeetingAt] = useState('');
   const [editMeetingType, setEditMeetingType] = useState('Discovery Call');
   const [editMeetingStatus, setEditMeetingStatus] = useState('Scheduled');
+  const [copiedLink, setCopiedLink] = useState(false);
 
   // CSV Import/Export States
   const [showCSVImport, setShowCSVImport] = useState(false);
@@ -80,6 +83,15 @@ export const LeadsView: React.FC = () => {
   const selectedLead = leads.find((l) => l.id === selectedLeadId);
   const selectedOrg = selectedLead ? organizations.find((o) => o.id === selectedLead.organization_id) : null;
   const selectedContact = selectedLead ? contacts.find((c) => c.id === selectedLead.primary_contact_id) : null;
+
+  const handleCopyPortalLink = () => {
+    if (selectedOrg?.client_token) {
+      const url = `${window.location.origin}/?portal=${selectedOrg.client_token}`;
+      navigator.clipboard.writeText(url);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    }
+  };
 
   // Filtered Leads list
   const filteredLeads = leads.filter((l) => {
@@ -542,6 +554,57 @@ export const LeadsView: React.FC = () => {
                 <p><span className="font-semibold text-typography-light">Location:</span> {selectedOrg?.city ? `${selectedOrg.city}, ${selectedOrg.country}` : 'N/A'}</p>
               </div>
             </div>
+
+            {/* Client Portal Link */}
+            {selectedOrg && (
+              <div className="space-y-2 border-t border-border pt-4 text-xs">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-[10px] font-bold uppercase tracking-wider text-typography">Client Partner Portal</h3>
+                  {selectedOrg.client_token && (
+                    <button
+                      onClick={handleCopyPortalLink}
+                      className="inline-flex items-center space-x-1 text-[9px] font-bold uppercase text-aurum hover:text-aurum-dark transition-colors"
+                      title="Copy secure portal URL for client"
+                    >
+                      {copiedLink ? (
+                        <>
+                          <Check size={10} className="text-green-500" />
+                          <span className="text-green-500">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={10} />
+                          <span>Copy Portal Link</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+                {selectedOrg.client_token ? (
+                  <div className="bg-background-soft border border-border/60 rounded p-2.5 space-y-1.5">
+                    <p className="text-[10px] text-typography-muted">
+                      Share this secure link with the client to grant them live access to their deliverables, invoices, and files.
+                    </p>
+                    <div className="flex items-center space-x-1.5">
+                      <span className="bg-background border border-border px-2 py-1 rounded text-[10px] text-typography-light font-mono truncate flex-1">
+                        {`${window.location.origin}/?portal=${selectedOrg.client_token}`}
+                      </span>
+                      <a
+                        href={`/?portal=${selectedOrg.client_token}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-1 border border-border rounded bg-background text-typography-muted hover:text-aurum hover:border-aurum/40 transition-colors"
+                        title="Open Portal in New Tab"
+                      >
+                        <ChevronRight size={12} />
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-typography-light italic">No secure portal token available.</p>
+                )}
+              </div>
+            )}
 
             {/* Primary Contact Profile */}
             <div className="space-y-2 border-t border-border pt-4 text-xs">

@@ -12,6 +12,7 @@ export interface Organization {
   city?: string;
   source_channel?: string;
   notes?: string;
+  client_token?: string;
   created_at: string;
   updated_at: string;
 }
