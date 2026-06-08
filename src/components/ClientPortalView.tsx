@@ -24,6 +24,38 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({ token }) => 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Feedback & Request States
+  const [feedbackTitle, setFeedbackTitle] = useState('');
+  const [feedbackDesc, setFeedbackDesc] = useState('');
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
+  const [feedbackSuccess, setFeedbackSuccess] = useState<string | null>(null);
+  const [feedbackError, setFeedbackError] = useState<string | null>(null);
+
+  const handleSubmitFeedback = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!feedbackTitle.trim() || !feedbackDesc.trim()) return;
+
+    try {
+      setSubmittingFeedback(true);
+      setFeedbackError(null);
+      setFeedbackSuccess(null);
+      
+      const res = await dbService.submitClientFeedback(token, feedbackTitle, feedbackDesc);
+      if (res && res.success) {
+        setFeedbackSuccess('Your request has been securely submitted to the Valith Founder Office. We will review it and follow up shortly!');
+        setFeedbackTitle('');
+        setFeedbackDesc('');
+      } else {
+        setFeedbackError(res?.error || 'Failed to submit feedback. Please try again.');
+      }
+    } catch (err: any) {
+      console.error(err);
+      setFeedbackError('An error occurred while sending your request. Please try again.');
+    } finally {
+      setSubmittingFeedback(false);
+    }
+  };
+
   useEffect(() => {
     const fetchPortalData = async () => {
       try {
@@ -436,6 +468,78 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({ token }) => 
               </table>
             </div>
           )}
+        </div>
+
+        {/* CLIENT REQUESTS / COLLABORATIVE FEEDBACK FORM */}
+        <div className="bg-background-card border border-border rounded-lg p-6 shadow-sm space-y-4">
+          <h2 className="text-xs font-bold tracking-wider uppercase text-typography border-b border-border/50 pb-2 flex items-center space-x-2">
+            <Send size={13} className="text-aurum" />
+            <span>Submit Change Request or Inquiry</span>
+          </h2>
+          <p className="text-[10px] text-typography-muted leading-relaxed">
+            Need adjustments to scope deliverables, have questions about invoice details, or want to submit an inquiry? Submit your request below, and the founder office will be notified immediately.
+          </p>
+
+          {feedbackSuccess && (
+            <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-xs rounded flex items-start space-x-2">
+              <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-green-600" />
+              <span>{feedbackSuccess}</span>
+            </div>
+          )}
+
+          {feedbackError && (
+            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded">
+              {feedbackError}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmitFeedback} className="space-y-4">
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <label className="block text-[9px] font-bold uppercase tracking-wider text-typography-light mb-1">Subject / Area</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Scope Change Request / Milestones Feedback / Invoice Inquiry"
+                  value={feedbackTitle}
+                  onChange={(e) => setFeedbackTitle(e.target.value)}
+                  className="w-full text-xs px-3 py-2 bg-background-soft border border-border rounded focus:outline-none focus:border-aurum/40 text-typography placeholder:text-typography-light/60"
+                  required
+                  disabled={submittingFeedback}
+                />
+              </div>
+              <div>
+                <label className="block text-[9px] font-bold uppercase tracking-wider text-typography-light mb-1">Details & Context</label>
+                <textarea
+                  rows={4}
+                  placeholder="Describe your request or question in detail. Please provide any background context so we can act on it promptly."
+                  value={feedbackDesc}
+                  onChange={(e) => setFeedbackDesc(e.target.value)}
+                  className="w-full text-xs px-3 py-2 bg-background-soft border border-border rounded focus:outline-none focus:border-aurum/40 text-typography placeholder:text-typography-light/60 resize-none"
+                  required
+                  disabled={submittingFeedback}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end pt-1">
+              <button
+                type="submit"
+                disabled={submittingFeedback || !feedbackTitle.trim() || !feedbackDesc.trim()}
+                className="inline-flex items-center space-x-2 border border-border bg-typography text-white hover:bg-typography/90 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 rounded text-xs font-bold uppercase tracking-wider transition-colors"
+              >
+                {submittingFeedback ? (
+                  <>
+                    <Loader2 size={12} className="animate-spin" />
+                    <span>Submitting Request...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send size={12} />
+                    <span>Submit Request</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
         </div>
 
       </div>

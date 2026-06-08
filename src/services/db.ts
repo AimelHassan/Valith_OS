@@ -470,5 +470,15 @@ export const dbService = {
     const { data, error } = await supabase.rpc('get_client_portal_data', { p_token: token });
     if (error) throw error;
     return data;
+  },
+
+  async submitClientFeedback(token: string, title: string, description: string): Promise<any> {
+    const { data, error } = await supabase.rpc('submit_client_feedback', {
+      p_token: token,
+      p_title: title,
+      p_description: description
+    });
+    if (error) throw error;
+    return data;
   }
 };
